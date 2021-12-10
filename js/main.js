@@ -2,6 +2,69 @@ const UP = new THREE.Vector3(0, 0, 1);
 let LEFT = new THREE.Vector3(-1, 0, 0);
 const MOVE_SPEED = 0.8;
 
+const mapDefinition = [
+    '##########',
+    '#        #',
+    '#        F',
+    '#        #',
+    '# #      #',
+    '# #      #',
+    '#P#      #',
+    '##########',
+];
+
+const MAP_WIDTH = 10;
+const MAP_HEIGHT = 8;
+
+const createWall = function (position){
+    const geometry = new THREE.BoxGeometry();
+    const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    const wall = new THREE.Mesh(geometry, material);
+    wall.position.copy(position);
+
+    wall.isPassable = false;
+
+    return wall;
+}
+
+const createMap = function (scene) {
+    let map = {};
+    map.top = 0;
+    map.bottom = -(MAP_HEIGHT - 1);
+    map.left = 0;
+    map.right = MAP_WIDTH - 1;
+    map.playerSpawn = null;
+
+    for(let i = 0; i < MAP_HEIGHT; i++){
+        let y = -i; 
+        map[y] =  {};    
+        for(let j = 0; j < MAP_WIDTH; j++){
+            let x = j;
+            let mapNow = mapDefinition[i][j];
+
+            let mesh = null;
+
+            if(mapNow == 'P'){
+                map.playerSpawn = new THREE.Vector3(x,y,0);
+            }else if(mapNow == '#'){
+                mesh = createWall(new THREE.Vector3(x,y,0))
+            }else if(mapNow == ' '){
+                map[y][x] = {
+                    'isPassable': true
+                };
+            }
+
+            if(mesh != null){
+                map[y][x] = mesh;
+                scene.add(mesh);
+            }
+        }
+    }
+    return map;
+};
+
+
+
 const createPlayer = function (scene, position) {
     let playerGeometries = [];
     const numFrames = 40;
@@ -106,14 +169,9 @@ const main = function () {
     const renderer = createRenderer();
     const scene = createScene();
 
-    const playerPosition = new THREE.Vector3(5, 5, 0);
-    const player = createPlayer(scene, playerPosition);
-
-    const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const cube = new THREE.Mesh(geometry, material);
-    cube.position.copy(new THREE.Vector3(3, 5, 0));
-    scene.add(cube)
+    const map = createMap(scene);
+    console.log(map)
+    const player = createPlayer(scene, map.playerSpawn);
 
     const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
 
