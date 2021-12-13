@@ -1,6 +1,10 @@
 const UP = new THREE.Vector3(0, 0, 1);
-let LEFT = new THREE.Vector3(-1, 0, 0);
+const LEFT = new THREE.Vector3(-1, 0, 0);
+const RIGHT = new THREE.Vector3(1, 0, 0);
+const TOP = new THREE.Vector3(0, 1, 0);
+const BOTTOM = new THREE.Vector3(0, -1, 0);
 const MOVE_SPEED = 0.8;
+const PLAYER_RADIUS = 0.25;
 
 const mapDefinition = [
     '##########',
@@ -34,14 +38,14 @@ const createMap = function (scene) {
     map.left = 0;
     map.right = MAP_WIDTH - 1;
     map.playerSpawn = null;
-
+    
     for(let i = 0; i < MAP_HEIGHT; i++){
         let y = -i; 
         map[y] =  {};    
         for(let j = 0; j < MAP_WIDTH; j++){
             let x = j;
             let mapNow = mapDefinition[i][j];
-
+            
             let mesh = null;
 
             if(mapNow == 'P'){
@@ -66,12 +70,14 @@ const createMap = function (scene) {
 
 
 const createPlayer = function (scene, position) {
+    // Create spheres with decreasingly small horizontal sweeps, in order
+    // to create player "death" animation.
     let playerGeometries = [];
     const numFrames = 40;
     let offset;
     for (let i = 0; i < numFrames; i++) {
         offset = (i / (numFrames - 1)) * Math.PI;
-        playerGeometries.push(new THREE.SphereGeometry(0.25, 16, 16, offset, Math.PI * 2 - offset * 2));
+        playerGeometries.push(new THREE.SphereGeometry(PLAYER_RADIUS, 16, 16, offset, Math.PI * 2 - offset * 2));
         playerGeometries[i].rotateX(Math.PI / 2);
     }
 
@@ -94,7 +100,7 @@ const createPlayer = function (scene, position) {
     scene.add(player);
 
     return player;
-
+    
 }
 
 
@@ -115,7 +121,7 @@ const createScene = function () {
 
     // Add Ambient lighting
     scene.add(new THREE.AmbientLight(0x888888));
-
+    
     return scene;
 };
 
@@ -131,8 +137,8 @@ let createKeys = function () {
         keys[String.fromCharCode(event.keyCode)] = false;
     });
     document.body.addEventListener('blur', function (event) {
-        // all keys are unpressed when the browser loses focus.
-        for (let key in keys) {
+        // Make it so that all keys are unpressed when the browser loses focus.
+        for (var key in keys) {
             if (keys.hasOwnProperty(key))
                 keys[key] = false;
         }
@@ -141,17 +147,17 @@ let createKeys = function () {
     return keys;
 };
 
-const animationLoop = function (callback) {
+const animationLoop = function(callback){
     let previousFrameTime = window.performance.now();
 
     let animationSeconds = 0;
 
     const render = function () {
-        let now = window.performance.now();
-        let animationDelta = (now - previousFrameTime) / 1000;
+        var now = window.performance.now();
+        var animationDelta = (now - previousFrameTime) / 1000;
         previousFrameTime = now;
 
-        animationDelta = Math.min(animationDelta, 1 / 30);
+        animationDelta = Math.min(animationDelta, 1/30);
 
         animationSeconds += animationDelta;
 
@@ -163,6 +169,15 @@ const animationLoop = function (callback) {
     requestAnimationFrame(render);
 }
 
+const checkPassable = function (map, position) {
+    let x = Math.round(position.x);
+    let y = Math.round(position.y);
+
+    if(map[y] && map[y][x]){
+        return map[y][x].isPassable;
+    }
+    return false;
+}
 
 const main = function () {
     let keys = createKeys();
@@ -173,16 +188,22 @@ const main = function () {
     console.log(map)
     const player = createPlayer(scene, map.playerSpawn);
 
-    const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
+    // const geometry = new THREE.BoxGeometry();
+    // const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    // const cube = new THREE.Mesh( geometry, material );
+    // cube.position.copy(new THREE.Vector3(0,-6,0));
+    // scene.add(cube)
 
+    const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
+    
     camera.up.copy(UP);
     camera.targetPosition = new THREE.Vector3();
     camera.targetLookAt = new THREE.Vector3();
     camera.lookAtPosition = new THREE.Vector3();
 
+    
 
-
-    const movePlayer = function (delta) {
+    const movePlayer = function(delta){        
         // Move based on current keys being pressed.
         if (keys['W']) {
             // W - move forward
@@ -196,24 +217,41 @@ const main = function () {
             player.translateOnAxis(LEFT, -MOVE_SPEED * delta);
             player.distanceMoved += MOVE_SPEED * delta;
         }
-        if (keys['A']) {
+        if (keys['A']){
             player.direction.applyAxisAngle(UP, Math.PI / 2 * delta);
-
+            
         }
-        if (keys['D']) {
+        if (keys['D']){
             player.direction.applyAxisAngle(UP, -Math.PI / 2 * delta);
         }
 
+        var leftSide = player.position.clone().addScaledVector(LEFT, PLAYER_RADIUS).round();
+        var rightSide = player.position.clone().addScaledVector(RIGHT, PLAYER_RADIUS).round();
+        var topSide = player.position.clone().addScaledVector(TOP, PLAYER_RADIUS).round();
+        var bottomSide = player.position.clone().addScaledVector(BOTTOM, PLAYER_RADIUS).round();
+
+        if (!checkPassable(map, leftSide)) {
+            player.position.x = leftSide.x + 0.5 + PLAYER_RADIUS;
+        }
+        if (!checkPassable(map, rightSide)) {
+            player.position.x = rightSide.x - 0.5 - PLAYER_RADIUS;
+        }
+        if (!checkPassable(map, topSide)) {
+            player.position.y = topSide.y - 0.5 - PLAYER_RADIUS;
+        }
+        if (!checkPassable(map, bottomSide)) {
+            player.position.y = bottomSide.y + 0.5 + PLAYER_RADIUS;
+        }
 
     }
 
-    const update = function (delta) {
+    const update = function(delta){
         updateCamera(delta);
         updatePlayer(delta);
     }
 
     let _lookAt = new THREE.Vector3();
-    const updatePlayer = function (delta) {
+    const updatePlayer = function(delta){
         player.up.copy(player.direction).applyAxisAngle(UP, -Math.PI / 2);
         player.lookAt(_lookAt.copy(player.position).add(UP));
 
@@ -234,7 +272,7 @@ const main = function () {
         camera.lookAt(camera.lookAtPosition);
     }
 
-
+    
     animationLoop(function (delta) {
         update(delta);
 
