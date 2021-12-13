@@ -1,9 +1,12 @@
+import * as THREE from './three.module.js';
+
 const UP = new THREE.Vector3(0, 0, 1);
 const LEFT = new THREE.Vector3(-1, 0, 0);
 const RIGHT = new THREE.Vector3(1, 0, 0);
 const TOP = new THREE.Vector3(0, 1, 0);
 const BOTTOM = new THREE.Vector3(0, -1, 0);
 const MOVE_SPEED = 0.8;
+const TURN_SPEED = Math.PI / 2;
 const PLAYER_RADIUS = 0.25;
 
 const mapDefinitionEasy = [
@@ -125,8 +128,6 @@ const createMap = function (scene, mapDef) {
     return map;
 };
 
-
-
 const createPlayer = function (scene, position) {
     // Create spheres with decreasingly small horizontal sweeps, in order
     // to create player "death" animation.
@@ -160,10 +161,6 @@ const createPlayer = function (scene, position) {
     return player;
     
 }
-
-
-
-
 
 const createRenderer = function () {
     const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -259,8 +256,6 @@ const main = function () {
     camera.targetLookAt = new THREE.Vector3();
     camera.lookAtPosition = new THREE.Vector3();
 
-    
-
     const movePlayer = function(delta){        
         // Move based on current keys being pressed.
         if (keys['W']) {
@@ -276,11 +271,11 @@ const main = function () {
             player.distanceMoved += MOVE_SPEED * delta;
         }
         if (keys['A']){
-            player.direction.applyAxisAngle(UP, Math.PI / 2 * delta);
+            player.direction.applyAxisAngle(UP, TURN_SPEED * delta);
             
         }
         if (keys['D']){
-            player.direction.applyAxisAngle(UP, -Math.PI / 2 * delta);
+            player.direction.applyAxisAngle(UP, -TURN_SPEED / 2 * delta);
         }
 
         var leftSide = player.position.clone().addScaledVector(LEFT, PLAYER_RADIUS).round();
