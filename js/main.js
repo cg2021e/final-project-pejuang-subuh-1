@@ -50,9 +50,12 @@ const createMap = function (scene) {
 
             if(mapNow == 'P'){
                 map.playerSpawn = new THREE.Vector3(x,y,0);
+                map[y][x] = {
+                    'isPassable': true
+                };
             }else if(mapNow == '#'){
                 mesh = createWall(new THREE.Vector3(x,y,0))
-            }else if(mapNow == ' '){
+            }else{
                 map[y][x] = {
                     'isPassable': true
                 };
