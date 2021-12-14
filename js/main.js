@@ -259,6 +259,7 @@ const main = function () {
     hideOverlay("loading");
     hideOverlay("gameover");
     hideOverlay("timer");
+    hideOverlay("game");
     showOverlay("title");
 
     document.getElementById("easy").addEventListener('click', () => {
@@ -288,6 +289,7 @@ const main = function () {
         isMoving = false;
         isPoweredUp = false;
         camera.position.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
+        showOverlay("game");
     }
 
     const movePlayer = function (delta) {
@@ -315,6 +317,8 @@ const main = function () {
         }
 
         isMoving = keys['W'] || keys['S'] || keys['A'] || keys['D'];
+
+        document.getElementById("distance").innerText = "Distance Walked: " + Math.round(player.distanceMoved) + " m";
 
         const leftSide = player.position.clone().addScaledVector(LEFT, PLAYER_RADIUS).round();
         const rightSide = player.position.clone().addScaledVector(RIGHT, PLAYER_RADIUS).round();
@@ -354,8 +358,9 @@ const main = function () {
 
         if (checkGoal(map, player.position)) {
             inGame = false;
+            hideOverlay("game");
             showOverlay("gameover");
-            document.getElementById("distance").innerText = "You walked for " + Math.round(player.distanceMoved) + " meters.";
+            document.getElementById("distance-gameover").innerText = "You walked for " + Math.round(player.distanceMoved) + " meters.";
             resetScene(scene);
             return;
         }
@@ -394,7 +399,7 @@ const main = function () {
 
         showOverlay("timer");
 
-        camera.position.copy(player.position).addScaledVector(UP, 5);
+        camera.position.copy(player.position).addScaledVector(UP, 10);
         camera.lookAtPosition.copy(player.position);
         camera.lookAt(camera.lookAtPosition);
 

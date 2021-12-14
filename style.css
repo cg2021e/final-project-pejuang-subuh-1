@@ -17,7 +17,7 @@ body {
     position: absolute;
 }
 
-#overlay, #title, #gameover, #loading, #timer {
+#overlay, #title, #gameover, #loading, #timer, #game {
     top: 0;
     left: 0;
     width: 100%;
