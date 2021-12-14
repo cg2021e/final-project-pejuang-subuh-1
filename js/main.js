@@ -128,6 +128,11 @@ const createScene = function () {
     return scene;
 };
 
+const resetScene = (scene) => {
+    scene.clear();
+    scene.add(new THREE.AmbientLight(0x888888));
+}
+
 let createKeys = function () {
     let keys = {};
 
@@ -173,12 +178,20 @@ const animationLoop = function (callback) {
 }
 
 const checkPassable = function (map, position) {
-    let x = Math.round(position.x);
-    let y = Math.round(position.y);
+    const x = Math.round(position.x);
+    const y = Math.round(position.y);
 
     if (map[y] && map[y][x]) {
         return map[y][x].isPassable;
     }
+    return false;
+}
+
+const checkGoal = (map, position) => {
+    if (position.distanceToSquared(map.goal) < PLAYER_RADIUS) {
+        return true;
+    }
+
     return false;
 }
 
@@ -187,13 +200,20 @@ const hideOverlay = (id) => {
     overlay.style.display = "none";
 }
 
+const showOverlay = (id) => {
+    const overlay = document.getElementById(id);
+    overlay.style.display = "flex";
+};
+
 const main = function () {
     let keys = createKeys();
     const renderer = createRenderer();
-    const scene = createScene();
+    let scene = createScene();
 
     let map = null;
     let player = null;
+
+    let inGame = false;
 
     const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -201,6 +221,10 @@ const main = function () {
     camera.targetPosition = new THREE.Vector3();
     camera.targetLookAt = new THREE.Vector3();
     camera.lookAtPosition = new THREE.Vector3();
+
+    hideOverlay("loading");
+    hideOverlay("gameover");
+    showOverlay("title");
 
     document.getElementById("easy").addEventListener('click', () => {
         hideOverlay("title");
@@ -217,12 +241,20 @@ const main = function () {
         startGame("hard");
     });
 
+    document.getElementById("restart").addEventListener('click', () => {
+        hideOverlay("gameover");
+        showOverlay("title");
+    });
+
     const startGame = (difficulty) => {
+        inGame = true;
         map = createMap(scene, MAP_DEFINITION[difficulty]);
         player = createPlayer(scene, map.playerSpawn);
     }
 
     const movePlayer = function (delta) {
+        if(!inGame) return;
+
         // Move based on current keys being pressed.
         if (keys['W']) {
             // W - move forward
@@ -244,10 +276,10 @@ const main = function () {
             player.direction.applyAxisAngle(UP, -TURN_SPEED / 2 * delta);
         }
 
-        var leftSide = player.position.clone().addScaledVector(LEFT, PLAYER_RADIUS).round();
-        var rightSide = player.position.clone().addScaledVector(RIGHT, PLAYER_RADIUS).round();
-        var topSide = player.position.clone().addScaledVector(TOP, PLAYER_RADIUS).round();
-        var bottomSide = player.position.clone().addScaledVector(BOTTOM, PLAYER_RADIUS).round();
+        const leftSide = player.position.clone().addScaledVector(LEFT, PLAYER_RADIUS).round();
+        const rightSide = player.position.clone().addScaledVector(RIGHT, PLAYER_RADIUS).round();
+        const topSide = player.position.clone().addScaledVector(TOP, PLAYER_RADIUS).round();
+        const bottomSide = player.position.clone().addScaledVector(BOTTOM, PLAYER_RADIUS).round();
 
         if (!checkPassable(map, leftSide)) {
             player.position.x = leftSide.x + 0.5 + PLAYER_RADIUS;
@@ -271,7 +303,15 @@ const main = function () {
 
     let _lookAt = new THREE.Vector3();
     const updatePlayer = function (delta) {
-        if (!player) return;
+        if (!inGame) return;
+
+        if(checkGoal(map, player.position)) {
+            inGame = false;
+            showOverlay("gameover");
+            document.getElementById("distance").innerText = "You walked for " + Math.round(player.distanceMoved) + " meters.";
+            resetScene(scene);
+            return;
+        }
 
         player.up.copy(player.direction).applyAxisAngle(UP, -Math.PI / 2);
         player.lookAt(_lookAt.copy(player.position).add(UP));
@@ -284,7 +324,7 @@ const main = function () {
     }
 
     const updateCamera = function (delta) {
-        if (!player) return;
+        if (!inGame) return;
 
         camera.targetPosition.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1);
         camera.targetLookAt.copy(player.position).add(player.direction);
