@@ -1,5 +1,6 @@
 import * as THREE from './three.module.js';
 import { MAP_DEFINITION } from './map.js';
+import { OrbitControls } from './OrbitControls.js';
 
 const UP = new THREE.Vector3(0, 0, 1);
 const LEFT = new THREE.Vector3(-1, 0, 0);
@@ -214,13 +215,21 @@ const main = function () {
     let player = null;
 
     let inGame = false;
+    let isMoving = false;
 
     const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
+    //controls.update() must be called after any manual changes to the camera's transform
 
     camera.up.copy(UP);
     camera.targetPosition = new THREE.Vector3();
     camera.targetLookAt = new THREE.Vector3();
     camera.lookAtPosition = new THREE.Vector3();
+
+    const controls = new OrbitControls(camera, document.getElementById("container"));
+    controls.minPolarAngle = Math.PI / 6;
+    controls.maxPolarAngle = Math.PI / 3;
+    controls.update();
+    controls.enableZoom = false;
 
     hideOverlay("loading");
     hideOverlay("gameover");
@@ -250,10 +259,12 @@ const main = function () {
         inGame = true;
         map = createMap(scene, MAP_DEFINITION[difficulty]);
         player = createPlayer(scene, map.playerSpawn);
+        controls.enabled = true;
+        camera.position.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
     }
 
     const movePlayer = function (delta) {
-        if(!inGame) return;
+        if (!inGame) return;
 
         // Move based on current keys being pressed.
         if (keys['W']) {
@@ -275,6 +286,8 @@ const main = function () {
         if (keys['D']) {
             player.direction.applyAxisAngle(UP, -TURN_SPEED / 2 * delta);
         }
+
+        isMoving = keys['W'] || keys['S'] || keys['A'] || keys['D'];
 
         const leftSide = player.position.clone().addScaledVector(LEFT, PLAYER_RADIUS).round();
         const rightSide = player.position.clone().addScaledVector(RIGHT, PLAYER_RADIUS).round();
@@ -305,7 +318,7 @@ const main = function () {
     const updatePlayer = function (delta) {
         if (!inGame) return;
 
-        if(checkGoal(map, player.position)) {
+        if (checkGoal(map, player.position)) {
             inGame = false;
             showOverlay("gameover");
             document.getElementById("distance").innerText = "You walked for " + Math.round(player.distanceMoved) + " meters.";
@@ -324,15 +337,22 @@ const main = function () {
     }
 
     const updateCamera = function (delta) {
+        controls.enabled = inGame;
+
         if (!inGame) return;
 
-        camera.targetPosition.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1);
-        camera.targetLookAt.copy(player.position).add(player.direction);
+        if (isMoving) {
+            camera.targetPosition.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
+            camera.targetLookAt.copy(player.position).add(player.direction);
+            const cameraSpeed = 10;
+            camera.position.lerp(camera.targetPosition, delta * cameraSpeed);
+            camera.lookAtPosition.lerp(camera.targetLookAt, delta * cameraSpeed);
+            camera.lookAt(camera.lookAtPosition);
+        }
 
-        const cameraSpeed = 10;
-        camera.position.lerp(camera.targetPosition, delta * cameraSpeed);
-        camera.lookAtPosition.lerp(camera.targetLookAt, delta * cameraSpeed);
-        camera.lookAt(camera.lookAtPosition);
+        controls.target.copy(player.position);
+
+        controls.update();
     }
 
 
