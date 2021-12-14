@@ -60,7 +60,16 @@ const createMap = function (scene, mapDef) {
 
             if (mapNow == '#') {
                 mesh = createWall(new THREE.Vector3(x, y, 0))
-            } else {
+            } else if (mapNow == '+') {
+                const geometry = new THREE.SphereGeometry(PLAYER_RADIUS / 4);
+                const material = new THREE.MeshBasicMaterial({ color: 0x0000FF });
+                mesh = new THREE.Mesh(geometry, material);
+
+                mesh.position.copy(new THREE.Vector3(x, y, 0));
+                mesh.isPassable = true;
+                mesh.isPowerUp = true;
+            }
+            else {
                 map[y][x] = {
                     'isPassable': true
                 };
@@ -178,19 +187,34 @@ const animationLoop = function (callback) {
     requestAnimationFrame(render);
 }
 
-const checkPassable = function (map, position) {
+const getAt = (map, position, remove) => {
     const x = Math.round(position.x);
     const y = Math.round(position.y);
+    remove = remove || false;
 
-    if (map[y] && map[y][x]) {
-        return map[y][x].isPassable;
+    if (map[y] && map[y][x]) {            
+        return map[y][x];
+    }
+
+    return null;
+}
+
+const checkPassable = function (map, position) {
+    const mesh = getAt(map, position);
+
+    if (mesh) {
+        return mesh.isPassable;
     }
     return false;
 }
 
-const checkGoal = (map, position) => {
-    if (position.distanceToSquared(map.goal) < PLAYER_RADIUS) {
-        return true;
+const checkGoal = (map, position) => position.distanceToSquared(map.goal) < PLAYER_RADIUS;
+
+const checkPowerUp = function (map, position) {
+    const mesh = getAt(map, position);
+
+    if (mesh && mesh.isPowerUp) {
+        return position.distanceToSquared(mesh.position) < PLAYER_RADIUS;
     }
 
     return false;
@@ -216,6 +240,7 @@ const main = function () {
 
     let inGame = false;
     let isMoving = false;
+    let isPoweredUp = false;
 
     const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
     //controls.update() must be called after any manual changes to the camera's transform
@@ -233,6 +258,7 @@ const main = function () {
 
     hideOverlay("loading");
     hideOverlay("gameover");
+    hideOverlay("timer");
     showOverlay("title");
 
     document.getElementById("easy").addEventListener('click', () => {
@@ -256,15 +282,16 @@ const main = function () {
     });
 
     const startGame = (difficulty) => {
-        inGame = true;
         map = createMap(scene, MAP_DEFINITION[difficulty]);
         player = createPlayer(scene, map.playerSpawn);
-        controls.enabled = true;
+        inGame = true;
+        isMoving = false;
+        isPoweredUp = false;
         camera.position.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
     }
 
     const movePlayer = function (delta) {
-        if (!inGame) return;
+        if (!inGame || isPoweredUp) return;
 
         // Move based on current keys being pressed.
         if (keys['W']) {
@@ -294,6 +321,13 @@ const main = function () {
         const topSide = player.position.clone().addScaledVector(TOP, PLAYER_RADIUS).round();
         const bottomSide = player.position.clone().addScaledVector(BOTTOM, PLAYER_RADIUS).round();
 
+        if (checkPowerUp(map, player.position)) {
+            const mesh = getAt(map, player.position, true);
+            mesh.isPowerUp = false;
+            scene.remove(mesh);
+            powerUp();
+        }
+
         if (!checkPassable(map, leftSide)) {
             player.position.x = leftSide.x + 0.5 + PLAYER_RADIUS;
         }
@@ -316,7 +350,7 @@ const main = function () {
 
     let _lookAt = new THREE.Vector3();
     const updatePlayer = function (delta) {
-        if (!inGame) return;
+        if (!inGame || isPoweredUp) return;
 
         if (checkGoal(map, player.position)) {
             inGame = false;
@@ -337,9 +371,9 @@ const main = function () {
     }
 
     const updateCamera = function (delta) {
-        controls.enabled = inGame;
+        controls.enabled = inGame && !isPoweredUp;
 
-        if (!inGame) return;
+        if (!inGame || isPoweredUp) return;
 
         if (isMoving) {
             camera.targetPosition.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
@@ -354,6 +388,36 @@ const main = function () {
 
         controls.update();
     }
+
+    const powerUp = () => {
+        isPoweredUp = true;
+
+        showOverlay("timer");
+
+        camera.position.copy(player.position).addScaledVector(UP, 5);
+        camera.lookAtPosition.copy(player.position);
+        camera.lookAt(camera.lookAtPosition);
+
+        let powerUpTime = 5;
+        const timerText = document.getElementById("timer-text");
+        timerText.innerText = powerUpTime;
+
+        const timer = setInterval(() => {
+            powerUpTime--;
+            timerText.innerText = powerUpTime;
+
+            if (powerUpTime <= 0) {
+                clearInterval(timer);
+                isPoweredUp = false;
+
+                camera.position.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
+                camera.lookAtPosition.copy(player.position).add(player.direction);
+                camera.lookAt(camera.lookAtPosition);
+                
+                hideOverlay("timer");
+            }
+        }, 1000);
+    };
 
 
     animationLoop(function (delta) {
