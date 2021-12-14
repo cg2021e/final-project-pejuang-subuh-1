@@ -187,12 +187,11 @@ const animationLoop = function (callback) {
     requestAnimationFrame(render);
 }
 
-const getAt = (map, position, remove) => {
+const getAt = (map, position) => {
     const x = Math.round(position.x);
     const y = Math.round(position.y);
-    remove = remove || false;
 
-    if (map[y] && map[y][x]) {            
+    if (map[y] && map[y][x]) {
         return map[y][x];
     }
 
@@ -288,7 +287,8 @@ const main = function () {
         inGame = true;
         isMoving = false;
         isPoweredUp = false;
-        camera.position.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
+        camera.targetPosition.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
+        camera.targetLookAt.copy(player.position).add(player.direction);
         showOverlay("game");
     }
 
@@ -326,9 +326,10 @@ const main = function () {
         const bottomSide = player.position.clone().addScaledVector(BOTTOM, PLAYER_RADIUS).round();
 
         if (checkPowerUp(map, player.position)) {
-            const mesh = getAt(map, player.position, true);
+            const mesh = getAt(map, player.position);
             mesh.isPowerUp = false;
             scene.remove(mesh);
+            isMoving = false;
             powerUp();
         }
 
@@ -376,18 +377,19 @@ const main = function () {
     }
 
     const updateCamera = function (delta) {
-        controls.enabled = inGame && !isPoweredUp;
+        controls.enabled = inGame;
 
-        if (!inGame || isPoweredUp) return;
+        if (!inGame) return;
 
         if (isMoving) {
             camera.targetPosition.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
             camera.targetLookAt.copy(player.position).add(player.direction);
-            const cameraSpeed = 10;
-            camera.position.lerp(camera.targetPosition, delta * cameraSpeed);
-            camera.lookAtPosition.lerp(camera.targetLookAt, delta * cameraSpeed);
-            camera.lookAt(camera.lookAtPosition);
         }
+
+        const cameraSpeed = 10;
+        camera.position.lerp(camera.targetPosition, delta * cameraSpeed);
+        camera.lookAtPosition.lerp(camera.targetLookAt, delta * cameraSpeed);
+        camera.lookAt(camera.lookAtPosition);
 
         controls.target.copy(player.position);
 
@@ -399,9 +401,8 @@ const main = function () {
 
         showOverlay("timer");
 
-        camera.position.copy(player.position).addScaledVector(UP, 10);
-        camera.lookAtPosition.copy(player.position);
-        camera.lookAt(camera.lookAtPosition);
+        camera.targetPosition.copy(player.position).addScaledVector(UP, 10);
+        camera.targetLookAt.copy(player.position);
 
         let powerUpTime = 5;
         const timerText = document.getElementById("timer-text");
@@ -415,10 +416,9 @@ const main = function () {
                 clearInterval(timer);
                 isPoweredUp = false;
 
-                camera.position.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
-                camera.lookAtPosition.copy(player.position).add(player.direction);
-                camera.lookAt(camera.lookAtPosition);
-                
+                camera.targetPosition.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
+                camera.targetLookAt.copy(player.position).add(player.direction);
+
                 hideOverlay("timer");
             }
         }, 1000);
