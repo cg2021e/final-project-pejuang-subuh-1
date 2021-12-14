@@ -112,7 +112,9 @@ const createRenderer = function () {
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setClearColor('black', 1.0);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
+
+    const container = document.getElementById("container");
+    container.insertBefore(renderer.domElement, container.firstChild);
 
     return renderer;
 }
@@ -180,22 +182,18 @@ const checkPassable = function (map, position) {
     return false;
 }
 
+const hideOverlay = (id) => {
+    const overlay = document.getElementById(id);
+    overlay.style.display = "none";
+}
+
 const main = function () {
     let keys = createKeys();
     const renderer = createRenderer();
     const scene = createScene();
 
-    const mapDefinition = MAP_DEFINITION['easy'];
-
-    const map = createMap(scene, mapDefinition);
-    console.log(map)
-    const player = createPlayer(scene, map.playerSpawn);
-
-    // const geometry = new THREE.BoxGeometry();
-    // const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-    // const cube = new THREE.Mesh( geometry, material );
-    // cube.position.copy(new THREE.Vector3(0,-6,0));
-    // scene.add(cube)
+    let map = null;
+    let player = null;
 
     const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -203,6 +201,26 @@ const main = function () {
     camera.targetPosition = new THREE.Vector3();
     camera.targetLookAt = new THREE.Vector3();
     camera.lookAtPosition = new THREE.Vector3();
+
+    document.getElementById("easy").addEventListener('click', () => {
+        hideOverlay("title");
+        startGame("easy");
+    });
+
+    document.getElementById("medium").addEventListener('click', () => {
+        hideOverlay("title");
+        startGame("medium");
+    });
+
+    document.getElementById("hard").addEventListener('click', () => {
+        hideOverlay("title");
+        startGame("hard");
+    });
+
+    const startGame = (difficulty) => {
+        map = createMap(scene, MAP_DEFINITION[difficulty]);
+        player = createPlayer(scene, map.playerSpawn);
+    }
 
     const movePlayer = function (delta) {
         // Move based on current keys being pressed.
@@ -253,6 +271,8 @@ const main = function () {
 
     let _lookAt = new THREE.Vector3();
     const updatePlayer = function (delta) {
+        if (!player) return;
+
         player.up.copy(player.direction).applyAxisAngle(UP, -Math.PI / 2);
         player.lookAt(_lookAt.copy(player.position).add(UP));
 
@@ -264,6 +284,8 @@ const main = function () {
     }
 
     const updateCamera = function (delta) {
+        if (!player) return;
+
         camera.targetPosition.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1);
         camera.targetLookAt.copy(player.position).add(player.direction);
 
@@ -276,7 +298,6 @@ const main = function () {
 
     animationLoop(function (delta) {
         update(delta);
-
         renderer.setViewport(0, 0, renderer.domElement.width, renderer.domElement.height);
         renderer.render(scene, camera);
     });
