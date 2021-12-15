@@ -85,37 +85,42 @@ const createMap = function (scene, mapDef) {
 };
 
 const createPlayer = function (scene, position) {
-    // Create spheres with decreasingly small horizontal sweeps, in order
-    // to create player "death" animation.
-    let playerGeometries = [];
-    const numFrames = 40;
-    let offset;
-    for (let i = 0; i < numFrames; i++) {
-        offset = (i / (numFrames - 1)) * Math.PI;
-        playerGeometries.push(new THREE.SphereGeometry(PLAYER_RADIUS, 16, 16, offset, Math.PI * 2 - offset * 2));
-        playerGeometries[i].rotateX(Math.PI / 2);
+    const triangleSide = PLAYER_RADIUS * 3 / Math.sqrt(3);
+    const triangleHeigth = triangleSide * Math.sqrt(3) / 2;
+
+    const vertices = [
+        new THREE.Vector2(triangleHeigth - PLAYER_RADIUS, Math.cos(Math.PI / 3) * triangleSide),
+        new THREE.Vector2(triangleHeigth - PLAYER_RADIUS, -Math.cos(Math.PI / 3) * triangleSide),
+        new THREE.Vector2(-PLAYER_RADIUS, 0)
+    ];
+
+    const Shape = new THREE.Shape();
+
+    Shape.moveTo(vertices[0].x, vertices[0].y);
+    for (let i = 1; i < vertices.length; i++) {
+        Shape.lineTo(vertices[i].x, vertices[i].y);
     }
+    Shape.lineTo(vertices[0].x, vertices[0].y);
 
-    const playerMaterial = new THREE.MeshPhongMaterial({ color: 'red', side: THREE.DoubleSide });
+    const settings = {
+        depth: PLAYER_RADIUS,
+        bevelEnabled: false
+    };
 
+    var geometry = new THREE.ExtrudeGeometry(Shape, settings);
 
-    let player = new THREE.Mesh(playerGeometries[0], playerMaterial);
-    player.frames = playerGeometries;
-    player.currentFrame = 0;
+    const playerMaterial = new THREE.MeshPhongMaterial({ color: 'red' });
 
-    player.isPlayer = true;
-    player.isWrapper = true;
-    player.atePowerUp = false;
+    const player = new THREE.Mesh(geometry, playerMaterial);
+
     player.distanceMoved = 0;
 
-    // Initialize player facing to the left.
     player.position.copy(position);
     player.direction = new THREE.Vector3(-1, 0, 0);
 
     scene.add(player);
 
     return player;
-
 }
 
 const createRenderer = function () {
@@ -253,7 +258,6 @@ const main = function () {
     bgm.autoplay = true;
 
     const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
-    //controls.update() must be called after any manual changes to the camera's transform
 
     camera.up.copy(UP);
     camera.targetPosition = new THREE.Vector3();
@@ -393,11 +397,7 @@ const main = function () {
         player.up.copy(player.direction).applyAxisAngle(UP, -Math.PI / 2);
         player.lookAt(_lookAt.copy(player.position).add(UP));
 
-        movePlayer(delta)
-
-        //show player direction
-        let frame = Math.floor(0.1 / Math.PI * player.frames.length);
-        player.geometry = player.frames[frame];
+        movePlayer(delta);
     }
 
     const updateCamera = function (delta) {
