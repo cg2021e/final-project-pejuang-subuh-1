@@ -19,7 +19,8 @@ const LEFT = new THREE.Vector3(-1, 0, 0);
 const RIGHT = new THREE.Vector3(1, 0, 0);
 const TOP = new THREE.Vector3(0, 1, 0);
 const BOTTOM = new THREE.Vector3(0, -1, 0);
-const MOVE_SPEED = 1;
+const MAX_MOVE_SPEED = 1;
+const MIN_MOVE_SPEED = 0.25;
 const TURN_SPEED = Math.PI / 2;
 const PLAYER_RADIUS = 0.25;
 const PLAYER_MAX_ENERGY = 60;
@@ -60,6 +61,7 @@ const main = function () {
     let isPoweredUp = false;
     let cameraNeedUpdate = false;
     let currentEnergy = 0;
+    let currentSpeed = 0;
 
     const uiSFX = new Audio('sounds/ui.wav');
     const powerUpSFX = new Audio('sounds/powerup.wav');
@@ -120,6 +122,7 @@ const main = function () {
         isMoving = false;
         isPoweredUp = false;
         currentEnergy = PLAYER_MAX_ENERGY;
+        currentSpeed = MAX_MOVE_SPEED;
 
         camera.targetPosition.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
         camera.targetLookAt.copy(player.position).add(player.direction);
@@ -139,14 +142,14 @@ const main = function () {
         if (keys['W']) {
             // W - move forward
             // Because we are rotating the object above using lookAt, "forward" is to the left.
-            player.translateOnAxis(LEFT, MOVE_SPEED * delta);
-            player.distanceMoved += MOVE_SPEED * delta;
+            player.translateOnAxis(LEFT, currentSpeed * delta);
+            player.distanceMoved += currentSpeed * delta;
         }
         if (keys['S']) {
             // W - move forward
             // Because we are rotating the object above using lookAt, "forward" is to the left.
-            player.translateOnAxis(LEFT, -MOVE_SPEED * delta);
-            player.distanceMoved += MOVE_SPEED * delta;
+            player.translateOnAxis(LEFT, -currentSpeed * delta);
+            player.distanceMoved += currentSpeed * delta;
         }
         if (keys['A']) {
             player.direction.applyAxisAngle(UP, TURN_SPEED * delta);
@@ -218,8 +221,9 @@ const main = function () {
         player.lookAt(_lookAt.copy(player.position).add(UP));
 
         currentEnergy -= delta * ENERGY_PER_SECOND;
-        console.log(currentEnergy, (currentEnergy / PLAYER_MAX_ENERGY) * 100);
-        setWidth("progress", `${(currentEnergy / PLAYER_MAX_ENERGY) * 100}%`);
+        const energyRatio = currentEnergy / PLAYER_MAX_ENERGY;
+        setWidth("progress", `${energyRatio * 100}%`);
+        currentSpeed = Math.max(MIN_MOVE_SPEED, currentEnergy / PLAYER_MAX_ENERGY * MAX_MOVE_SPEED);
 
         movePlayer(delta);
     }
