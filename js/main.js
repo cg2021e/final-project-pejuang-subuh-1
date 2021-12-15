@@ -10,8 +10,8 @@ import {
     checkGoal, checkPowerUp
 } from './mapHelper.js';
 import {
-    createKeys, hideOverlay, showOverlay,
-    addClick, setText
+    createKeys, addClick, 
+    setText, showOneFromParent
 } from './documentHelper.js';
 
 const UP = new THREE.Vector3(0, 0, 1);
@@ -81,33 +81,25 @@ const main = function () {
     controls.update();
     controls.enableZoom = false;
 
-    hideOverlay("loading");
-    hideOverlay("gameover");
-    hideOverlay("timer");
-    hideOverlay("game");
-    showOverlay("title");
+    showOneFromParent("title", "overlay-screen");
 
     addClick("easy", () => {
-        hideOverlay("title");
         startGame("easy");
         uiSFX.play();
     });
 
     addClick("medium", () => {
-        hideOverlay("title");
         startGame("medium");
         uiSFX.play();
     });
 
     addClick("hard", () => {
-        hideOverlay("title");
         startGame("hard");
         uiSFX.play();
     });
 
     addClick("restart", () => {
-        hideOverlay("gameover");
-        showOverlay("title");
+        showOneFromParent("title", "overlay-screen");
         uiSFX.play();
     });
 
@@ -127,7 +119,7 @@ const main = function () {
             cameraNeedUpdate = false;
         }, 500);
 
-        showOverlay("game");
+        showOneFromParent("game", "overlay-screen");
     }
 
     const movePlayer = function (delta) {
@@ -197,8 +189,7 @@ const main = function () {
 
         if (checkGoal(map, player.position, PLAYER_RADIUS)) {
             inGame = false;
-            hideOverlay("game");
-            showOverlay("gameover");
+            showOneFromParent("gameover", "overlay-screen");
             setText("distance-gameover", `You walked for ${Math.round(player.distanceMoved)} meters.`);
             resetScene(scene);
             goalSFX.play();
@@ -238,7 +229,7 @@ const main = function () {
 
         powerUpSFX.play();
 
-        showOverlay("timer");
+        showOneFromParent("timer", "overlay-screen");
 
         camera.targetPosition.copy(player.position).addScaledVector(UP, 10);
         camera.targetLookAt.copy(player.position);
@@ -264,7 +255,7 @@ const main = function () {
                     cameraNeedUpdate = false;
                 }, 500);
 
-                hideOverlay("timer");
+                showOneFromParent("game", "overlay-screen");
             }
         }, 1000);
     };

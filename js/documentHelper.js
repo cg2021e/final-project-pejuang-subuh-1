@@ -59,3 +59,19 @@ export const addClick = (id, callback) => {
 export const setText = (id, text) => {
     document.getElementById(id).innerText = text;
 }
+
+/**
+ * 
+ * @param {String} id 
+ * @param {String} parentId 
+ */
+export const showOneFromParent = (id, parentId) => {
+    const children = Array.from(document.getElementById(parentId).children);
+    children.forEach(child => {
+        if(child.id === id) {
+            child.style.display = "flex";
+        } else {
+            child.style.display = "none";
+        }
+    })
+}
