@@ -241,6 +241,16 @@ const main = function () {
     let isMoving = false;
     let isPoweredUp = false;
 
+    const uiSFX = new Audio('sounds/ui.wav');
+    const powerUpSFX = new Audio('sounds/powerup.wav');
+    const reversePowerUpSFX = new Audio('sounds/reversePowerup.wav');
+    const goalSFX = new Audio('sounds/goal.wav');
+
+    const bgm = new Audio('sounds/bgm.ogg');
+    bgm.loop = true;
+    bgm.volume = 0.5;
+    bgm.autoplay = true;
+
     const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
     //controls.update() must be called after any manual changes to the camera's transform
 
@@ -264,21 +274,25 @@ const main = function () {
     document.getElementById("easy").addEventListener('click', () => {
         hideOverlay("title");
         startGame("easy");
+        uiSFX.play();
     });
 
     document.getElementById("medium").addEventListener('click', () => {
         hideOverlay("title");
         startGame("medium");
+        uiSFX.play();
     });
 
     document.getElementById("hard").addEventListener('click', () => {
         hideOverlay("title");
         startGame("hard");
+        uiSFX.play();
     });
 
     document.getElementById("restart").addEventListener('click', () => {
         hideOverlay("gameover");
         showOverlay("title");
+        uiSFX.play();
     });
 
     const startGame = (difficulty) => {
@@ -363,6 +377,7 @@ const main = function () {
             showOverlay("gameover");
             document.getElementById("distance-gameover").innerText = "You walked for " + Math.round(player.distanceMoved) + " meters.";
             resetScene(scene);
+            goalSFX.play();
             return;
         }
 
@@ -399,6 +414,8 @@ const main = function () {
     const powerUp = () => {
         isPoweredUp = true;
 
+        powerUpSFX.play();
+
         showOverlay("timer");
 
         camera.targetPosition.copy(player.position).addScaledVector(UP, 10);
@@ -415,6 +432,8 @@ const main = function () {
             if (powerUpTime <= 0) {
                 clearInterval(timer);
                 isPoweredUp = false;
+
+                reversePowerUpSFX.play();
 
                 camera.targetPosition.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
                 camera.targetLookAt.copy(player.position).add(player.direction);
