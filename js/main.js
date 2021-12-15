@@ -207,13 +207,13 @@ const checkPassable = function (map, position) {
     return false;
 }
 
-const checkGoal = (map, position) => position.distanceToSquared(map.goal) < PLAYER_RADIUS;
+const checkGoal = (map, position) => position.distanceToSquared(map.goal) < PLAYER_RADIUS * PLAYER_RADIUS / 4;
 
 const checkPowerUp = function (map, position) {
     const mesh = getAt(map, position);
 
     if (mesh && mesh.isPowerUp) {
-        return position.distanceToSquared(mesh.position) < PLAYER_RADIUS;
+        return position.distanceToSquared(mesh.position) < PLAYER_RADIUS * PLAYER_RADIUS / 4;
     }
 
     return false;
@@ -240,7 +240,7 @@ const main = function () {
     let inGame = false;
     let isMoving = false;
     let isPoweredUp = false;
-    let cameraNeedUpdate = false;;
+    let cameraNeedUpdate = false;
 
     const uiSFX = new Audio('sounds/ui.wav');
     const powerUpSFX = new Audio('sounds/powerup.wav');
