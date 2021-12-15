@@ -1,5 +1,10 @@
 import * as THREE from './three.module.js';
 
+/**
+ * 
+ * @param {THREE.Vector3} position 
+ * @returns {THREE.Mesh}
+ */
 export const createWall = function (position) {
     const geometry = new THREE.BoxGeometry();
     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
@@ -11,6 +16,13 @@ export const createWall = function (position) {
     return wall;
 }
 
+/**
+ * 
+ * @param {THREE.Scene} scene 
+ * @param {{map: Array.<String>, start: [Number, Number], goal: [Number, Number]}} mapDef 
+ * @param {Number} playerRadius 
+ * @returns {Array.<THREE.Mesh[]>}
+ */
 export const createMap = function (scene, mapDef, playerRadius) {
     const mapString = mapDef.map;
     const mapHeight = mapDef.map.length;
@@ -73,6 +85,13 @@ export const createMap = function (scene, mapDef, playerRadius) {
     return map;
 };
 
+/**
+ * 
+ * @param {THREE.Scene} scene 
+ * @param {THREE.Vector3} position 
+ * @param {Number} playerRadius 
+ * @returns {THREE.Mesh}
+ */
 export const createPlayer = function (scene, position, playerRadius) {
     const triangleSide = playerRadius * 3 / Math.sqrt(3);
     const triangleHeigth = triangleSide * Math.sqrt(3) / 2;
@@ -112,6 +131,10 @@ export const createPlayer = function (scene, position, playerRadius) {
     return player;
 }
 
+/**
+ * 
+ * @returns {THREE.WebGLRenderer}
+ */
 export const createRenderer = function () {
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setClearColor('black', 1.0);
@@ -123,6 +146,10 @@ export const createRenderer = function () {
     return renderer;
 }
 
+/**
+ * 
+ * @returns {THREE.Scene}
+ */
 export const createScene = function () {
     const scene = new THREE.Scene();
 
@@ -132,6 +159,10 @@ export const createScene = function () {
     return scene;
 };
 
+/**
+ * 
+ * @param {THREE.Scene} scene 
+ */
 export const resetScene = (scene) => {
     scene.clear();
     scene.add(new THREE.AmbientLight(0x888888));
