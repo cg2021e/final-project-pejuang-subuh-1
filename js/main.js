@@ -240,6 +240,7 @@ const main = function () {
     let inGame = false;
     let isMoving = false;
     let isPoweredUp = false;
+    let cameraNeedUpdate = false;;
 
     const uiSFX = new Audio('sounds/ui.wav');
     const powerUpSFX = new Audio('sounds/powerup.wav');
@@ -298,11 +299,19 @@ const main = function () {
     const startGame = (difficulty) => {
         map = createMap(scene, MAP_DEFINITION[difficulty]);
         player = createPlayer(scene, map.playerSpawn);
+
         inGame = true;
         isMoving = false;
         isPoweredUp = false;
+
         camera.targetPosition.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
         camera.targetLookAt.copy(player.position).add(player.direction);
+
+        cameraNeedUpdate = true;
+        setTimeout(() => {
+            cameraNeedUpdate = false;
+        }, 500);
+
         showOverlay("game");
     }
 
@@ -392,7 +401,7 @@ const main = function () {
     }
 
     const updateCamera = function (delta) {
-        controls.enabled = inGame;
+        controls.enabled = inGame && !isMoving && !cameraNeedUpdate;
 
         if (!inGame) return;
 
@@ -401,10 +410,12 @@ const main = function () {
             camera.targetLookAt.copy(player.position).add(player.direction);
         }
 
-        const cameraSpeed = 10;
-        camera.position.lerp(camera.targetPosition, delta * cameraSpeed);
-        camera.lookAtPosition.lerp(camera.targetLookAt, delta * cameraSpeed);
-        camera.lookAt(camera.lookAtPosition);
+        if (!controls.enabled || isPoweredUp) {
+            const cameraSpeed = 10;
+            camera.position.lerp(camera.targetPosition, delta * cameraSpeed);
+            camera.lookAtPosition.lerp(camera.targetLookAt, delta * cameraSpeed);
+            camera.lookAt(camera.lookAtPosition);
+        }
 
         controls.target.copy(player.position);
 
@@ -437,6 +448,11 @@ const main = function () {
 
                 camera.targetPosition.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
                 camera.targetLookAt.copy(player.position).add(player.direction);
+
+                cameraNeedUpdate = true;
+                setTimeout(() => {
+                    cameraNeedUpdate = false;
+                }, 500);
 
                 hideOverlay("timer");
             }
