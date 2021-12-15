@@ -57,3 +57,13 @@ export const checkPowerUp = function (map, position, playerRadius) {
 
     return false;
 }
+
+export const checkEnergyPill = (map, position, playerRadius) => {
+    const mesh = getAt(map, position);
+
+    if (mesh && mesh.isEnergy) {
+        return position.distanceToSquared(mesh.position) < playerRadius * playerRadius / 4;
+    }
+
+    return false;
+}

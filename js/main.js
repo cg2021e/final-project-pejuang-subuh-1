@@ -7,7 +7,7 @@ import {
 } from './sceneHelper.js';
 import {
     getAt, checkPassable,
-    checkGoal, checkPowerUp
+    checkGoal, checkPowerUp, checkEnergyPill
 } from './mapHelper.js';
 import {
     createKeys, addClick,
@@ -23,8 +23,9 @@ const MAX_MOVE_SPEED = 1;
 const MIN_MOVE_SPEED = 0.25;
 const TURN_SPEED = Math.PI / 2;
 const PLAYER_RADIUS = 0.25;
-const PLAYER_MAX_ENERGY = 60;
+const PLAYER_MAX_ENERGY = 600;
 const ENERGY_PER_SECOND = 1;
+const ENERGY_PILL_VALUE = 150;
 
 const animationLoop = function (callback) {
     let previousFrameTime = window.performance.now();
@@ -68,6 +69,7 @@ const main = function () {
     const reversePowerUpSFX = new Audio('sounds/reversePowerup.wav');
     const goalSFX = new Audio('sounds/goal.wav');
     const failSFX = new Audio('sounds/failed.wav');
+    const energyPickUpSFX = new Audio('sounds/energy.wav');
 
     const bgm = new Audio('sounds/bgm.ogg');
     bgm.loop = true;
@@ -207,6 +209,14 @@ const main = function () {
             resetScene(scene);
             goalSFX.play();
             return;
+        }
+
+        if (checkEnergyPill(map, player.position, PLAYER_RADIUS)) {
+            const mesh = getAt(map, player.position);
+            mesh.isEnergy = false;
+            scene.remove(mesh);
+            currentEnergy = Math.min(currentEnergy + ENERGY_PILL_VALUE, PLAYER_MAX_ENERGY);
+            energyPickUpSFX.play();
         }
 
         if (currentEnergy <= 0) {

@@ -70,6 +70,15 @@ export const createMap = function (scene, mapDef, playerRadius) {
                 mesh.isPassable = true;
                 mesh.isPowerUp = true;
             }
+            else if (mapNow == '$') {
+                const geometry = new THREE.SphereGeometry(playerRadius / 4);
+                const material = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
+                mesh = new THREE.Mesh(geometry, material);
+
+                mesh.position.copy(new THREE.Vector3(x, y, 0));
+                mesh.isPassable = true;
+                mesh.isEnergy = true;
+            }
             else {
                 map[y][x] = {
                     'isPassable': true
