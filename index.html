@@ -12,26 +12,36 @@
         <div id="container">
             <div id="overlay-screen">
                 <div class="overlay" id="loading">
-                    <h1>Loading...</h1>
+                    <h1 style="color: black !important">Loading...</h1>
                 </div>
                 <div class="overlay" id="title">
-                    <h1 style="color: white">Just A Maze</h1>
+                    <h1>Just A Maze</h1>
                     <div class="buttons">
                         <button class="difficulty-button" id="easy">Easy</button>
                         <button class="difficulty-button" id="medium">Medium</button>
                         <button class="difficulty-button" id="hard">Hard</button>
                     </div>
                 </div>
-                <div class="overlay" id="gameover">
-                    <h1 style="color: white">You Did It!!!</h1>
-                    <h3 style="color: white" id="distance-gameover">You walked for 0 m</h3>
-                    <button class="restart-button" id="restart">Restart</button>
+                <div class="overlay" id="gameover-win">
+                    <h1>You Did It!!!</h1>
+                    <h3 id="distance-gameover">You walked for 0 m</h3>
+                    <button class="restart-button" id="restart-win">Restart</button>
+                </div>
+                <div class="overlay" id="gameover-lose">
+                    <h1>You Failed :(</h1>
+                    <button class="restart-button" id="restart-lose">Restart</button>
                 </div>
                 <div class="overlay" id="timer">
-                    <h2 style="color: white" id="timer-text">5</h2>
+                    <h2 id="timer-text">5</h2>
                 </div>
                 <div class="overlay" id="game">
-                    <h2 style="color: white" id="distance">Distance: 0 m</h2>
+                    <div id="energy">
+                        <h2>Energy </h2>
+                        <div id="progress-bar">
+                            <div id="progress"></div>
+                        </div>
+                    </div>
+                    <h2 id="distance">Distance: 0 m</h2>
                 </div>
             </div>
         </div>

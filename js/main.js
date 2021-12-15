@@ -10,8 +10,8 @@ import {
     checkGoal, checkPowerUp
 } from './mapHelper.js';
 import {
-    createKeys, addClick, 
-    setText, showOneFromParent
+    createKeys, addClick,
+    setText, showOneFromParent, setWidth
 } from './documentHelper.js';
 
 const UP = new THREE.Vector3(0, 0, 1);
@@ -22,6 +22,8 @@ const BOTTOM = new THREE.Vector3(0, -1, 0);
 const MOVE_SPEED = 1;
 const TURN_SPEED = Math.PI / 2;
 const PLAYER_RADIUS = 0.25;
+const PLAYER_MAX_ENERGY = 60;
+const ENERGY_PER_SECOND = 1;
 
 const animationLoop = function (callback) {
     let previousFrameTime = window.performance.now();
@@ -57,11 +59,13 @@ const main = function () {
     let isMoving = false;
     let isPoweredUp = false;
     let cameraNeedUpdate = false;
+    let currentEnergy = 0;
 
     const uiSFX = new Audio('sounds/ui.wav');
     const powerUpSFX = new Audio('sounds/powerup.wav');
     const reversePowerUpSFX = new Audio('sounds/reversePowerup.wav');
     const goalSFX = new Audio('sounds/goal.wav');
+    const failSFX = new Audio('sounds/failed.wav');
 
     const bgm = new Audio('sounds/bgm.ogg');
     bgm.loop = true;
@@ -98,7 +102,12 @@ const main = function () {
         uiSFX.play();
     });
 
-    addClick("restart", () => {
+    addClick("restart-win", () => {
+        showOneFromParent("title", "overlay-screen");
+        uiSFX.play();
+    });
+
+    addClick("restart-lose", () => {
         showOneFromParent("title", "overlay-screen");
         uiSFX.play();
     });
@@ -110,6 +119,7 @@ const main = function () {
         inGame = true;
         isMoving = false;
         isPoweredUp = false;
+        currentEnergy = PLAYER_MAX_ENERGY;
 
         camera.targetPosition.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
         camera.targetLookAt.copy(player.position).add(player.direction);
@@ -188,16 +198,28 @@ const main = function () {
         }
 
         if (checkGoal(map, player.position, PLAYER_RADIUS)) {
-            inGame = false;
-            showOneFromParent("gameover", "overlay-screen");
+            inGame = false;;
+            showOneFromParent("gameover-win", "overlay-screen");
             setText("distance-gameover", `You walked for ${Math.round(player.distanceMoved)} meters.`);
             resetScene(scene);
             goalSFX.play();
             return;
         }
 
+        if (currentEnergy <= 0) {
+            inGame = false;;
+            showOneFromParent("gameover-lose", "overlay-screen");
+            resetScene(scene);
+            failSFX.play();
+            return;
+        }
+
         player.up.copy(player.direction).applyAxisAngle(UP, -Math.PI / 2);
         player.lookAt(_lookAt.copy(player.position).add(UP));
+
+        currentEnergy -= delta * ENERGY_PER_SECOND;
+        console.log(currentEnergy, (currentEnergy / PLAYER_MAX_ENERGY) * 100);
+        setWidth("progress", `${(currentEnergy / PLAYER_MAX_ENERGY) * 100}%`);
 
         movePlayer(delta);
     }

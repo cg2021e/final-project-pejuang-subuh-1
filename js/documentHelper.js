@@ -68,10 +68,19 @@ export const setText = (id, text) => {
 export const showOneFromParent = (id, parentId) => {
     const children = Array.from(document.getElementById(parentId).children);
     children.forEach(child => {
-        if(child.id === id) {
+        if (child.id === id) {
             child.style.display = "flex";
         } else {
             child.style.display = "none";
         }
     })
+}
+
+/**
+ * 
+ * @param {String} id 
+ * @param {String} width 
+ */
+export const setWidth = (id, width) => {
+    document.getElementById(id).style.width = width;
 }
