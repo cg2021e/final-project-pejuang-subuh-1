@@ -9,6 +9,10 @@ import {
     getAt, checkPassable,
     checkGoal, checkPowerUp
 } from './mapHelper.js';
+import {
+    createKeys, hideOverlay, showOverlay,
+    addClick, setText
+} from './documentHelper.js';
 
 const UP = new THREE.Vector3(0, 0, 1);
 const LEFT = new THREE.Vector3(-1, 0, 0);
@@ -18,28 +22,6 @@ const BOTTOM = new THREE.Vector3(0, -1, 0);
 const MOVE_SPEED = 1;
 const TURN_SPEED = Math.PI / 2;
 const PLAYER_RADIUS = 0.25;
-
-let createKeys = function () {
-    let keys = {};
-
-    document.body.addEventListener('keydown', function (event) {
-        keys[event.keyCode] = true;
-        keys[String.fromCharCode(event.keyCode)] = true;
-    });
-    document.body.addEventListener('keyup', function (event) {
-        keys[event.keyCode] = false;
-        keys[String.fromCharCode(event.keyCode)] = false;
-    });
-    document.body.addEventListener('blur', function (event) {
-        // Make it so that all keys are unpressed when the browser loses focus.
-        for (var key in keys) {
-            if (keys.hasOwnProperty(key))
-                keys[key] = false;
-        }
-    });
-
-    return keys;
-};
 
 const animationLoop = function (callback) {
     let previousFrameTime = window.performance.now();
@@ -63,18 +45,8 @@ const animationLoop = function (callback) {
     requestAnimationFrame(render);
 }
 
-const hideOverlay = (id) => {
-    const overlay = document.getElementById(id);
-    overlay.style.display = "none";
-}
-
-const showOverlay = (id) => {
-    const overlay = document.getElementById(id);
-    overlay.style.display = "flex";
-};
-
 const main = function () {
-    let keys = createKeys();
+    const keys = createKeys();
     const renderer = createRenderer();
     let scene = createScene();
 
@@ -115,25 +87,25 @@ const main = function () {
     hideOverlay("game");
     showOverlay("title");
 
-    document.getElementById("easy").addEventListener('click', () => {
+    addClick("easy", () => {
         hideOverlay("title");
         startGame("easy");
         uiSFX.play();
     });
 
-    document.getElementById("medium").addEventListener('click', () => {
+    addClick("medium", () => {
         hideOverlay("title");
         startGame("medium");
         uiSFX.play();
     });
 
-    document.getElementById("hard").addEventListener('click', () => {
+    addClick("hard", () => {
         hideOverlay("title");
         startGame("hard");
         uiSFX.play();
     });
 
-    document.getElementById("restart").addEventListener('click', () => {
+    addClick("restart", () => {
         hideOverlay("gameover");
         showOverlay("title");
         uiSFX.play();
@@ -142,7 +114,7 @@ const main = function () {
     const startGame = (difficulty) => {
         map = createMap(scene, MAP_DEFINITION[difficulty], PLAYER_RADIUS);
         player = createPlayer(scene, map.playerSpawn, PLAYER_RADIUS);
-        console.log(map);
+
         inGame = true;
         isMoving = false;
         isPoweredUp = false;
@@ -184,7 +156,7 @@ const main = function () {
 
         isMoving = keys['W'] || keys['S'] || keys['A'] || keys['D'];
 
-        document.getElementById("distance").innerText = "Distance Walked: " + Math.round(player.distanceMoved) + " m";
+        setText("distance", `Distance Walked: ${Math.round(player.distanceMoved)} m`);
 
         const leftSide = player.position.clone().addScaledVector(LEFT, PLAYER_RADIUS).round();
         const rightSide = player.position.clone().addScaledVector(RIGHT, PLAYER_RADIUS).round();
@@ -227,7 +199,7 @@ const main = function () {
             inGame = false;
             hideOverlay("game");
             showOverlay("gameover");
-            document.getElementById("distance-gameover").innerText = "You walked for " + Math.round(player.distanceMoved) + " meters.";
+            setText("distance-gameover", `You walked for ${Math.round(player.distanceMoved)} meters.`);
             resetScene(scene);
             goalSFX.play();
             return;
@@ -272,12 +244,11 @@ const main = function () {
         camera.targetLookAt.copy(player.position);
 
         let powerUpTime = 5;
-        const timerText = document.getElementById("timer-text");
-        timerText.innerText = powerUpTime;
+        setText("timer-text", powerUpTime);
 
         const timer = setInterval(() => {
             powerUpTime--;
-            timerText.innerText = powerUpTime;
+            setText("timer-text", powerUpTime);
 
             if (powerUpTime <= 0) {
                 clearInterval(timer);
