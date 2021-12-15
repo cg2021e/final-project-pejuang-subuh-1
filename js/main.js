@@ -5,6 +5,10 @@ import {
     createMap, createPlayer, createRenderer,
     createScene, resetScene
 } from './sceneHelper.js';
+import {
+    getAt, checkPassable,
+    checkGoal, checkPowerUp
+} from './mapHelper.js';
 
 const UP = new THREE.Vector3(0, 0, 1);
 const LEFT = new THREE.Vector3(-1, 0, 0);
@@ -57,38 +61,6 @@ const animationLoop = function (callback) {
     };
 
     requestAnimationFrame(render);
-}
-
-const getAt = (map, position) => {
-    const x = Math.round(position.x);
-    const y = Math.round(position.y);
-
-    if (map[y] && map[y][x]) {
-        return map[y][x];
-    }
-
-    return null;
-}
-
-const checkPassable = function (map, position) {
-    const mesh = getAt(map, position);
-
-    if (mesh) {
-        return mesh.isPassable;
-    }
-    return false;
-}
-
-const checkGoal = (map, position) => position.distanceToSquared(map.goal) < PLAYER_RADIUS * PLAYER_RADIUS / 4;
-
-const checkPowerUp = function (map, position) {
-    const mesh = getAt(map, position);
-
-    if (mesh && mesh.isPowerUp) {
-        return position.distanceToSquared(mesh.position) < PLAYER_RADIUS * PLAYER_RADIUS / 4;
-    }
-
-    return false;
 }
 
 const hideOverlay = (id) => {
@@ -170,7 +142,7 @@ const main = function () {
     const startGame = (difficulty) => {
         map = createMap(scene, MAP_DEFINITION[difficulty], PLAYER_RADIUS);
         player = createPlayer(scene, map.playerSpawn, PLAYER_RADIUS);
-
+        console.log(map);
         inGame = true;
         isMoving = false;
         isPoweredUp = false;
@@ -219,14 +191,6 @@ const main = function () {
         const topSide = player.position.clone().addScaledVector(TOP, PLAYER_RADIUS).round();
         const bottomSide = player.position.clone().addScaledVector(BOTTOM, PLAYER_RADIUS).round();
 
-        if (checkPowerUp(map, player.position)) {
-            const mesh = getAt(map, player.position);
-            mesh.isPowerUp = false;
-            scene.remove(mesh);
-            isMoving = false;
-            powerUp();
-        }
-
         if (!checkPassable(map, leftSide)) {
             player.position.x = leftSide.x + 0.5 + PLAYER_RADIUS;
         }
@@ -251,7 +215,15 @@ const main = function () {
     const updatePlayer = function (delta) {
         if (!inGame || isPoweredUp) return;
 
-        if (checkGoal(map, player.position)) {
+        if (checkPowerUp(map, player.position, PLAYER_RADIUS)) {
+            const mesh = getAt(map, player.position);
+            mesh.isPowerUp = false;
+            scene.remove(mesh);
+            isMoving = false;
+            powerUp();
+        }
+
+        if (checkGoal(map, player.position, PLAYER_RADIUS)) {
             inGame = false;
             hideOverlay("game");
             showOverlay("gameover");
