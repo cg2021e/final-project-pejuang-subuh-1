@@ -1,5 +1,4 @@
 import * as THREE from './three.module.js';
-import { MAP_DEFINITION } from './map.js';
 import { OrbitControls } from './OrbitControls.js';
 import {
     createMap, createPlayer, createRenderer,
@@ -148,15 +147,14 @@ const main = function () {
 
     addClick("restart-pause", () => {
         resetScene(scene);
-        startGame(difficulty);
+        startGame(map.difficulty, map.mapIndex);
         uiSFX.play();
     });
 
     addClick("back-pause", backToMenu);
 
-    const startGame = (choosenDifficulty) => {
-        difficulty = choosenDifficulty;
-        map = createMap(scene, MAP_DEFINITION[difficulty], PLAYER_RADIUS);
+    const startGame = (choosenDifficulty, mapIndex) => {
+        map = createMap(scene, choosenDifficulty, PLAYER_RADIUS, mapIndex);
         createPlayer(scene, map.playerSpawn, (model) => {
             console.log("player created");
             player = model;
