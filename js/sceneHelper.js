@@ -147,7 +147,7 @@ export const createPlayer = function (scene, position, callback) {
         player.direction = new THREE.Vector3(-1, 0, 0);
         player.castShadow = true;
         player.receiveShadow = true;
-        // console.log(player);
+        
         scene.add(player);
         
         callback(player);

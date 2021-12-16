@@ -56,6 +56,7 @@ const main = function () {
 
     let map = null;
     let player = null;
+    let playerBBox = new THREE.Box3();
 
     let inGame = false;
     let isMoving = false;
@@ -197,23 +198,39 @@ const main = function () {
 
         setText("distance", `Distance Walked: ${Math.round(player.distanceMoved)} m`);
 
-        const leftSide = player.position.clone().addScaledVector(LEFT, PLAYER_RADIUS).round();
-        const rightSide = player.position.clone().addScaledVector(RIGHT, PLAYER_RADIUS).round();
-        const topSide = player.position.clone().addScaledVector(TOP, PLAYER_RADIUS).round();
-        const bottomSide = player.position.clone().addScaledVector(BOTTOM, PLAYER_RADIUS).round();
+        playerBBox.setFromObject(player);
+
+        const playerX = player.position.x;
+        const playerY = player.position.y
+
+        const playerLeft = playerX - playerBBox.min.x;
+        const playerRight = playerBBox.max.x - playerX;
+        const playerTop = (-1) * (playerY - playerBBox.max.y);
+        const playerBottom = (-1) * (playerBBox.min.y - playerY);
+        
+        const leftSide = player.position.clone().addScaledVector(LEFT, playerLeft).round();
+        const rightSide = player.position.clone().addScaledVector(RIGHT, playerRight).round();
+        const topSide = player.position.clone().addScaledVector(TOP, playerTop).round();
+        const bottomSide = player.position.clone().addScaledVector(BOTTOM, playerBottom).round();
+
 
         if (!checkPassable(map, leftSide)) {
-            player.position.x = leftSide.x + 0.5 + PLAYER_RADIUS;
+            console.log("left");
+            player.position.x = leftSide.x + 0.5 + playerLeft;
         }
         if (!checkPassable(map, rightSide)) {
-            player.position.x = rightSide.x - 0.5 - PLAYER_RADIUS;
+            console.log("right");
+            player.position.x = rightSide.x - 0.5 - playerRight;
         }
         if (!checkPassable(map, topSide)) {
-            player.position.y = topSide.y - 0.5 - PLAYER_RADIUS;
+            console.log("top");
+            player.position.y = topSide.y - 0.5 - playerTop;
         }
         if (!checkPassable(map, bottomSide)) {
-            player.position.y = bottomSide.y + 0.5 + PLAYER_RADIUS;
+            console.log("bottom");
+            player.position.y = bottomSide.y + 0.5 + playerBottom;
         }
+        console.log(" ");
 
     }
 
