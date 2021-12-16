@@ -25,8 +25,11 @@ body {
     height: 100%;
 }
 
-.overlay,
-#energy {
+.overlay {
+    display: none;
+}
+
+#loading, #energy {
     display: flex;
 }
 

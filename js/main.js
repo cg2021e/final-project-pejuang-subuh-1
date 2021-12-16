@@ -267,10 +267,11 @@ const main = function () {
 
         showOneFromParent("timer", "overlay-screen");
 
-        camera.targetPosition.copy(player.position).addScaledVector(UP, 10);
+        const cameraHeight = 3 * (map.bottom + 1) / 4;
+        camera.targetPosition.copy(player.position).addScaledVector(UP, cameraHeight);
         camera.targetLookAt.copy(player.position);
 
-        let powerUpTime = 5;
+        let powerUpTime = Math.round(1 + (map.bottom + 1) / 10 * 2);
         setText("timer-text", powerUpTime);
 
         const timer = setInterval(() => {
