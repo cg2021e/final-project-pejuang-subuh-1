@@ -22,7 +22,11 @@ const MAX_MOVE_SPEED = 1;
 const MIN_MOVE_SPEED = 0.25;
 const TURN_SPEED = Math.PI / 2;
 const PLAYER_RADIUS = 0.25;
-const PLAYER_MAX_ENERGY = 600;
+const PLAYER_MAX_ENERGY = {
+    easy: 180,
+    medium: 360,
+    hard: 540,
+};
 const ENERGY_PER_SECOND = 1;
 const ENERGY_PILL_VALUE = 150;
 
@@ -170,7 +174,7 @@ const main = function () {
             inGame = true;
             isMoving = false;
             isPoweredUp = false;
-            currentEnergy = PLAYER_MAX_ENERGY;
+            currentEnergy = PLAYER_MAX_ENERGY[map.difficulty];
             currentSpeed = MAX_MOVE_SPEED;
 
             camera.targetPosition.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
@@ -286,7 +290,7 @@ const main = function () {
             const mesh = getAt(map, player.position);
             mesh.isEnergy = false;
             scene.remove(mesh);
-            currentEnergy = Math.min(currentEnergy + ENERGY_PILL_VALUE, PLAYER_MAX_ENERGY);
+            currentEnergy = Math.min(currentEnergy + ENERGY_PILL_VALUE, PLAYER_MAX_ENERGY[map.difficulty]);
             energyPickUpSFX.play();
         }
 
@@ -301,9 +305,9 @@ const main = function () {
         player.lookAt(_lookAt.copy(player.position).add(UP));
 
         currentEnergy -= delta * ENERGY_PER_SECOND;
-        const energyRatio = currentEnergy / PLAYER_MAX_ENERGY;
+        const energyRatio = currentEnergy / PLAYER_MAX_ENERGY[map.difficulty];
         setWidth("energy-bar", `${energyRatio * 100}%`);
-        currentSpeed = Math.max(MIN_MOVE_SPEED, currentEnergy / PLAYER_MAX_ENERGY * MAX_MOVE_SPEED);
+        currentSpeed = Math.max(MIN_MOVE_SPEED, currentEnergy / PLAYER_MAX_ENERGY[map.difficulty] * MAX_MOVE_SPEED);
 
         movePlayer(delta);
     }
