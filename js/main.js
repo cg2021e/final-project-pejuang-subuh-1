@@ -73,8 +73,17 @@ const main = function () {
 
     const bgm = new Audio('sounds/bgm.ogg');
     bgm.loop = true;
-    bgm.volume = 0.5;
-    bgm.autoplay = true;
+    bgm.volume = 0.25;
+
+    const playAttempt = setInterval(() => {
+        bgm.play()
+            .then(() => {
+                clearInterval(playAttempt);
+            })
+            .catch(() => {
+                console.log('Unable to play the audio, User has not interacted yet.');
+            });
+    }, 1000);
 
     const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
 
@@ -90,6 +99,26 @@ const main = function () {
     controls.enableZoom = false;
 
     showOneFromParent("title", "overlay-screen");
+
+    addClick("play", () => {
+        showOneFromParent("choose-difficulty", "overlay-screen");
+        uiSFX.play();
+    });
+
+    addClick("how-to", () => {
+        showOneFromParent("how-to-play", "overlay-screen");
+        uiSFX.play();
+    });
+
+    addClick("back-from-htp", () => {
+        showOneFromParent("title", "overlay-screen");
+        uiSFX.play();
+    });
+
+    addClick("back-from-dif", () => {
+        showOneFromParent("title", "overlay-screen");
+        uiSFX.play();
+    });
 
     addClick("easy", () => {
         startGame("easy");
@@ -235,7 +264,7 @@ const main = function () {
 
         currentEnergy -= delta * ENERGY_PER_SECOND;
         const energyRatio = currentEnergy / PLAYER_MAX_ENERGY;
-        setWidth("progress", `${energyRatio * 100}%`);
+        setWidth("energy-bar", `${energyRatio * 100}%`);
         currentSpeed = Math.max(MIN_MOVE_SPEED, currentEnergy / PLAYER_MAX_ENERGY * MAX_MOVE_SPEED);
 
         movePlayer(delta);

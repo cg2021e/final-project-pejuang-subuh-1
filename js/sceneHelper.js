@@ -45,6 +45,10 @@ export const createMap = function (scene, mapDef, playerRadius) {
 
     const loader = new THREE.TextureLoader();
     const wallTexture = loader.load('textures/Stylized_Bricks_001_baseColor.jpg');
+    const groundTexture = loader.load('textures/Dirt_006_Base Color.jpg');
+    groundTexture.wrapS = THREE.MirroredRepeatWrapping;
+    groundTexture.wrapT = THREE.MirroredRepeatWrapping;
+    groundTexture.repeat.set(mapWidth, mapHeight);
 
     for (let i = 0; i < mapHeight; i++) {
         const y = -i;
@@ -102,11 +106,11 @@ export const createMap = function (scene, mapDef, playerRadius) {
     const planeGeo = new THREE.PlaneGeometry(mapWidth, mapHeight);
     const planeMat = new THREE.MeshPhongMaterial({
         color: 0x888888,
-        side: THREE.DoubleSide,
+        map: groundTexture,
     });
     const planeMesh = new THREE.Mesh(planeGeo, planeMat);
     planeMesh.receiveShadow = true;
-    planeMesh.position.set(centerX, centerY, -.5);
+    planeMesh.position.set(centerX - 0.5, centerY + 0.5, -0.5);
     scene.add(planeMesh);
 
     const lightHeight = centerX;

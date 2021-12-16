@@ -15,39 +15,58 @@
                 <div class="overlay" id="loading">
                     <h1 style="color: black !important">Loading...</h1>
                 </div>
+
                 <div class="overlay" id="title">
                     <h1>Just A Maze</h1>
                     <div class="buttons">
-                        <button class="difficulty-button" id="easy">Easy</button>
-                        <button class="difficulty-button" id="medium">Medium</button>
-                        <button class="difficulty-button" id="hard">Hard</button>
-                    </div>
-                    <div id="how-to-play">
-                        <h3>Go to the goal (gold ball) before your energy runs out</h3>
-                        <h3>Use <kbd>W</kbd> or <kbd>S</kbd> to move the player forward or backward</h3>
-                        <h3>Use <kbd>S</kbd> or <kbd>D</kbd> to rotate the player to the left or right</h3>
-                        <h3>When not moving, drag the screen to move the camera</h3>
-                        <h3>Blue ball will let you look at the maze from above for few seconds</h3>
-                        <h3>Red ball will add your energy</h3>
+                        <button class="menu-button" id="play">Play</button>
+                        <button class="menu-button" id="how-to">How to Play</button>
                     </div>
                 </div>
+
+                <div class="overlay" id="choose-difficulty">
+                    <h1>Choose difficulty</h1>
+                    <div class="buttons">
+                        <button class="menu-button" id="easy">Easy</button>
+                        <button class="menu-button" id="medium">Medium</button>
+                        <button class="menu-button" id="hard">Hard</button>
+                    </div>
+                    <button class="menu-button" id="back-from-dif">Back</button>
+                </div>
+
+                <div class="overlay" id="how-to-play">
+                    <h1>How to Play</h1>
+                    <h3>Go to the goal (gold ball) before your energy runs out</h3>
+                    <h3>Use <kbd>W</kbd> or <kbd>S</kbd> to move the player forward or backward</h3>
+                    <h3>
+                        Use <kbd>S</kbd> or <kbd>D</kbd> to rotate the player to the left or right
+                    </h3>
+                    <h3>When not moving, drag the screen to move the camera</h3>
+                    <h3>Blue ball will let you look at the maze from above for few seconds</h3>
+                    <h3>Red ball will add your energy</h3>
+                    <button class="menu-button" id="back-from-htp">Back</button>
+                </div>
+
                 <div class="overlay" id="gameover-win">
                     <h1>You Did It!!!</h1>
                     <h3 id="distance-gameover">You walked for 0 m</h3>
                     <button class="restart-button" id="restart-win">Restart</button>
                 </div>
+
                 <div class="overlay" id="gameover-lose">
                     <h1>You Failed :(</h1>
                     <button class="restart-button" id="restart-lose">Restart</button>
                 </div>
+
                 <div class="overlay" id="timer">
                     <h2 id="timer-text">5</h2>
                 </div>
+
                 <div class="overlay" id="game">
                     <div id="energy">
-                        <h2>Energy </h2>
-                        <div id="progress-bar">
-                            <div id="progress"></div>
+                        <h2>Energy</h2>
+                        <div id="energy-bar-bg">
+                            <div id="energy-bar"></div>
                         </div>
                     </div>
                     <h2 id="distance">Distance: 0 m</h2>
