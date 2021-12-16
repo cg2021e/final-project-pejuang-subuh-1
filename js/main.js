@@ -118,23 +118,26 @@ const main = function () {
 
     const startGame = (difficulty) => {
         map = createMap(scene, MAP_DEFINITION[difficulty], PLAYER_RADIUS);
-        player = createPlayer(scene, map.playerSpawn, PLAYER_RADIUS);
+        createPlayer(scene, map.playerSpawn, (model) => {
+            console.log("player created");
+            player = model;
 
-        inGame = true;
-        isMoving = false;
-        isPoweredUp = false;
-        currentEnergy = PLAYER_MAX_ENERGY;
-        currentSpeed = MAX_MOVE_SPEED;
+            inGame = true;
+            isMoving = false;
+            isPoweredUp = false;
+            currentEnergy = PLAYER_MAX_ENERGY;
+            currentSpeed = MAX_MOVE_SPEED;
 
-        camera.targetPosition.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
-        camera.targetLookAt.copy(player.position).add(player.direction);
+            camera.targetPosition.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
+            camera.targetLookAt.copy(player.position).add(player.direction);
 
-        cameraNeedUpdate = true;
-        setTimeout(() => {
-            cameraNeedUpdate = false;
-        }, 500);
+            cameraNeedUpdate = true;
+            setTimeout(() => {
+                cameraNeedUpdate = false;
+            }, 500);
 
-        showOneFromParent("game", "overlay-screen");
+            showOneFromParent("game", "overlay-screen");
+        });
     }
 
     const movePlayer = function (delta) {

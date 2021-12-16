@@ -1,4 +1,5 @@
 import * as THREE from './three.module.js';
+import { ColladaLoader } from './ColladaLoader.js';
 
 /**
  * 
@@ -121,45 +122,32 @@ export const createMap = function (scene, mapDef, playerRadius) {
  * @param {Number} playerRadius 
  * @returns {THREE.Mesh}
  */
-export const createPlayer = function (scene, position, playerRadius) {
-    const triangleSide = playerRadius * 3 / Math.sqrt(3);
-    const triangleHeigth = triangleSide * Math.sqrt(3) / 2;
+export const createPlayer = function (scene, position, callback) {
+    let player = null;
 
-    const vertices = [
-        new THREE.Vector2(triangleHeigth - playerRadius, Math.cos(Math.PI / 3) * triangleSide),
-        new THREE.Vector2(triangleHeigth - playerRadius, -Math.cos(Math.PI / 3) * triangleSide),
-        new THREE.Vector2(-playerRadius, 0)
-    ];
+    var colladaLoader = new ColladaLoader();
+    colladaLoader.load("model/player.dae", function (result) {
+        player = result.scene;
+        player.distanceMoved = 0;
 
-    const Shape = new THREE.Shape();
+        player.scale.x = player.scale.y = player.scale.z = 0.0022;
+        
+        const meshes = player.children[0].children;
+        
+        for (let i = 1; i < meshes.length; i++) {
+            meshes[i].castShadow = true;
+            meshes[i].receiveShadow = true;
+        }
 
-    Shape.moveTo(vertices[0].x, vertices[0].y);
-    for (let i = 1; i < vertices.length; i++) {
-        Shape.lineTo(vertices[i].x, vertices[i].y);
-    }
-    Shape.lineTo(vertices[0].x, vertices[0].y);
-
-    const settings = {
-        depth: playerRadius,
-        bevelEnabled: false
-    };
-
-    var geometry = new THREE.ExtrudeGeometry(Shape, settings);
-
-    const playerMaterial = new THREE.MeshPhongMaterial({ color: 'red' });
-
-    const player = new THREE.Mesh(geometry, playerMaterial);
-
-    player.distanceMoved = 0;
-
-    player.position.copy(position);
-    player.direction = new THREE.Vector3(-1, 0, 0);
-    player.castShadow = true;
-    player.receiveShadow = true;
-
-    scene.add(player);
-
-    return player;
+        player.position.copy(position);
+        player.direction = new THREE.Vector3(-1, 0, 0);
+        player.castShadow = true;
+        player.receiveShadow = true;
+        // console.log(player);
+        scene.add(player);
+        
+        callback(player);
+    })
 }
 
 /**
