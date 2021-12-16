@@ -102,15 +102,20 @@ h3 {
 }
 
 #bottom-game h2 {
+    margin-bottom: 50px;
     text-align: center;
 }
 
 #energy {
     flex-direction: column;
+    margin-left: 40px;
+    margin-top: 40px;
 }
 
 #distance {
     text-align: right;
+    margin-right: 40px;
+    margin-top: 40px;
 }
 
 .buttons {

@@ -335,7 +335,7 @@ const main = function () {
     }
 
     const checkPause = () => {
-        if (keys['P']) {
+        if (keys[27]) {
             showOneFromParent("paused", "overlay-screen");
             inGame = false;
         }
