@@ -44,7 +44,7 @@ export const createMap = function (scene, mapDef, playerRadius) {
     };
 
     const loader = new THREE.TextureLoader();
-    const wallTexture = loader.load('textures/Stylized_Bricks_001_baseColor.jpg');
+    const wallTexture = loader.load('textures/Stylized_Bricks_001_basecolor.jpg');
     const groundTexture = loader.load('textures/Dirt_006_Base Color.jpg');
     groundTexture.wrapS = THREE.MirroredRepeatWrapping;
     groundTexture.wrapT = THREE.MirroredRepeatWrapping;
