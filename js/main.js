@@ -106,6 +106,12 @@ const main = function () {
         uiSFX.play();
     };
 
+    const restartGame = () => {
+        resetScene(scene);
+        startGame(map.difficulty, map.mapIndex);
+        uiSFX.play();
+    };
+
     addClick("play", () => {
         showOneFromParent("choose-difficulty", "overlay-screen");
         uiSFX.play();
@@ -135,9 +141,13 @@ const main = function () {
         uiSFX.play();
     });
 
-    addClick("restart-win", backToMenu);
+    addClick("menu-win", backToMenu);
 
-    addClick("restart-lose", backToMenu);
+    addClick("restart-win", restartGame);
+
+    addClick("menu-lose", backToMenu);
+
+    addClick("restart-lose", restartGame);
 
     addClick("resume-pause", () => {
         inGame = true;
@@ -145,11 +155,7 @@ const main = function () {
         uiSFX.play();
     });
 
-    addClick("restart-pause", () => {
-        resetScene(scene);
-        startGame(map.difficulty, map.mapIndex);
-        uiSFX.play();
-    });
+    addClick("restart-pause", restartGame);
 
     addClick("back-pause", backToMenu);
 
