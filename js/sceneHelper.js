@@ -5,10 +5,13 @@ import * as THREE from './three.module.js';
  * @param {THREE.Vector3} position 
  * @returns {THREE.Mesh}
  */
-export const createWall = function (position) {
+export const createWall = function (position, textures) {
     const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+    const material = new THREE.MeshPhongMaterial({ 
+        map: textures,
+    });
     const wall = new THREE.Mesh(geometry, material);
+    
     wall.position.copy(position);
     wall.castShadow = true;
     wall.receiveShadow = true;
@@ -39,6 +42,9 @@ export const createMap = function (scene, mapDef, playerRadius) {
         goal: new THREE.Vector3(mapDef.goal[0], -mapDef.goal[1], 0),
     };
 
+    const loader = new THREE.TextureLoader();
+    const wallTexture = loader.load('textures/Stylized_Bricks_001_baseColor.jpg');
+
     for (let i = 0; i < mapHeight; i++) {
         const y = -i;
         map[y] = {};
@@ -60,7 +66,7 @@ export const createMap = function (scene, mapDef, playerRadius) {
 
             switch (mapNow) {
                 case '#':
-                    mesh = createWall(new THREE.Vector3(x, y, 0))
+                    mesh = createWall(new THREE.Vector3(x, y, 0), wallTexture);
                     break;
 
                 case '+':
