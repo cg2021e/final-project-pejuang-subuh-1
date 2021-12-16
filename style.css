@@ -30,7 +30,8 @@ body {
 }
 
 #loading,
-#energy {
+#energy,
+#top-game {
     display: flex;
 }
 
@@ -41,12 +42,19 @@ h3 {
     margin: 10px;
 }
 
+.overlay h1,
+.overlay h2,
+.overlay h3 {
+    user-select: none;
+}
+
 #loading,
 #title,
 #gameover-win,
 #gameover-lose,
 #how-to-play,
-#choose-difficulty {
+#choose-difficulty,
+#paused {
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -58,8 +66,16 @@ h3 {
 }
 
 #game {
-    flex-direction: row;
+    flex-direction: column;
     justify-content: space-between;
+}
+
+#top-game {
+    justify-content: space-between;
+}
+
+#bottom-game h2 {
+    text-align: center;
 }
 
 #energy {
@@ -117,4 +133,10 @@ kbd {
     width: 100%;
     height: 100%;
     display: block;
+}
+
+#paused,
+#gameover-win,
+#gameover-lose {
+    background-color: rgba(0, 0, 0, 0.75);
 }

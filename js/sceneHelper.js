@@ -1,5 +1,6 @@
 import * as THREE from './three.module.js';
 import { ColladaLoader } from './ColladaLoader.js';
+import { MAP_DEFINITION } from './map.js';
 
 /**
  * 
@@ -25,16 +26,22 @@ export const createWall = function (position, textures) {
 /**
  * 
  * @param {THREE.Scene} scene 
- * @param {{map: Array.<String>, start: [Number, Number], goal: [Number, Number]}} mapDef 
+ * @param {string} mapDifficulty 
  * @param {Number} playerRadius 
  * @returns {Array.<THREE.Mesh[]>}
  */
-export const createMap = function (scene, mapDef, playerRadius) {
+export const createMap = function (scene, mapDifficulty, playerRadius, mapIndex) {
+    const mapDefs = MAP_DEFINITION[mapDifficulty];
+    const randIndex = mapIndex || Math.floor(Math.random() * mapDefs.length);
+    const mapDef = mapDefs[randIndex];
+
     const mapString = mapDef.map;
     const mapHeight = mapDef.map.length;
     const mapWidth = mapDef.map[0].length;
 
     const map = {
+        difficulty: mapDifficulty,
+        mapIndex: randIndex,
         top: 0,
         bottom: mapHeight - 1,
         left: 0,
@@ -129,7 +136,7 @@ export const createMap = function (scene, mapDef, playerRadius) {
 export const createPlayer = function (scene, position, callback) {
     let player = null;
 
-    var colladaLoader = new ColladaLoader();
+    const colladaLoader = new ColladaLoader();
     colladaLoader.load("model/player.dae", function (result) {
         player = result.scene;
         player.distanceMoved = 0;
@@ -147,7 +154,6 @@ export const createPlayer = function (scene, position, callback) {
         player.direction = new THREE.Vector3(-1, 0, 0);
         player.castShadow = true;
         player.receiveShadow = true;
-        
         scene.add(player);
         
         callback(player);
