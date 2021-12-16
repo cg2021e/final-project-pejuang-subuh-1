@@ -221,24 +221,18 @@ const main = function () {
         const topSide = player.position.clone().addScaledVector(TOP, playerTop).round();
         const bottomSide = player.position.clone().addScaledVector(BOTTOM, playerBottom).round();
 
-
         if (!checkPassable(map, leftSide)) {
-            console.log("left");
             player.position.x = leftSide.x + 0.5 + playerLeft;
         }
         if (!checkPassable(map, rightSide)) {
-            console.log("right");
             player.position.x = rightSide.x - 0.5 - playerRight;
         }
         if (!checkPassable(map, topSide)) {
-            console.log("top");
             player.position.y = topSide.y - 0.5 - playerTop;
         }
         if (!checkPassable(map, bottomSide)) {
-            console.log("bottom");
             player.position.y = bottomSide.y + 0.5 + playerBottom;
         }
-        console.log(" ");
 
     }
 
