@@ -39,7 +39,7 @@ export const checkPassable = function (map, position) {
  * @param {Number} playerRadius
  * @returns {boolean}
  */
-export const checkGoal = (map, position, playerRadius) => position.distanceToSquared(map.goal) < playerRadius * playerRadius / 4;
+export const checkGoal = (map, position, playerRadius) => position.distanceToSquared(map.goal) < playerRadius * playerRadius * 2;
 
 /**
  * 
@@ -52,7 +52,7 @@ export const checkPowerUp = function (map, position, playerRadius) {
     const mesh = getAt(map, position);
 
     if (mesh && mesh.isPowerUp) {
-        return position.distanceToSquared(mesh.position) < playerRadius * playerRadius / 4;
+        return position.distanceToSquared(mesh.position) < playerRadius * playerRadius * 2;
     }
 
     return false;
@@ -62,7 +62,7 @@ export const checkEnergyPill = (map, position, playerRadius) => {
     const mesh = getAt(map, position);
 
     if (mesh && mesh.isEnergy) {
-        return position.distanceToSquared(mesh.position) < playerRadius * playerRadius / 4;
+        return position.distanceToSquared(mesh.position) < playerRadius * playerRadius * 2;
     }
 
     return false;
