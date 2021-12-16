@@ -172,3 +172,8 @@ kbd {
 #gameover-lose {
     background-color: rgba(0, 0, 0, 0.75);
 }
+
+#timer-text {
+    margin-top: 2.5vh;
+    font-size: 2.5vw;
+}
