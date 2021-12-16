@@ -210,12 +210,10 @@ const main = function () {
 
         }
         if (keys['D']) {
-            player.direction.applyAxisAngle(UP, -TURN_SPEED / 2 * delta);
+            player.direction.applyAxisAngle(UP, -TURN_SPEED * delta);
         }
 
         isMoving = keys['W'] || keys['S'] || keys['A'] || keys['D'];
-
-        setText("distance", `Distance Walked: ${Math.round(player.distanceMoved)} m`);
 
         playerBBox.setFromObject(player);
 
@@ -246,7 +244,7 @@ const main = function () {
         }
 
         player.distanceMoved += startPosition.distanceTo(player.position);
-
+        setText("distance", `Distance Walked: ${Math.round(player.distanceMoved)} m`);
     }
 
     const update = function (delta) {
