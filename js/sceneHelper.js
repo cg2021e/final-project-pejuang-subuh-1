@@ -7,9 +7,11 @@ import * as THREE from './three.module.js';
  */
 export const createWall = function (position) {
     const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const material = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
     const wall = new THREE.Mesh(geometry, material);
     wall.position.copy(position);
+    wall.castShadow = true;
+    wall.receiveShadow = true;
 
     wall.isPassable = false;
 
@@ -52,8 +54,10 @@ export const createMap = function (scene, mapDef, playerRadius) {
                 };
             } else if (map.goal.equals(new THREE.Vector3(x, y, 0))) {
                 const geometry = new THREE.SphereGeometry(playerRadius / 2);
-                const material = new THREE.MeshBasicMaterial({ color: 0xFFD700 });
+                const material = new THREE.MeshPhongMaterial({ color: 0xFFD700 });
                 mesh = new THREE.Mesh(geometry, material);
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
 
                 mesh.position.copy(map.goal);
                 mesh.isPassable = true;
@@ -63,8 +67,10 @@ export const createMap = function (scene, mapDef, playerRadius) {
                 mesh = createWall(new THREE.Vector3(x, y, 0))
             } else if (mapNow == '+') {
                 const geometry = new THREE.SphereGeometry(playerRadius / 4);
-                const material = new THREE.MeshBasicMaterial({ color: 0x0000FF });
+                const material = new THREE.MeshPhongMaterial({ color: 0x0000FF });
                 mesh = new THREE.Mesh(geometry, material);
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
 
                 mesh.position.copy(new THREE.Vector3(x, y, 0));
                 mesh.isPassable = true;
@@ -72,8 +78,10 @@ export const createMap = function (scene, mapDef, playerRadius) {
             }
             else if (mapNow == '$') {
                 const geometry = new THREE.SphereGeometry(playerRadius / 4);
-                const material = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
+                const material = new THREE.MeshPhongMaterial({ color: 0xFF0000 });
                 mesh = new THREE.Mesh(geometry, material);
+                mesh.castShadow = true;
+                mesh.receiveShadow = true;
 
                 mesh.position.copy(new THREE.Vector3(x, y, 0));
                 mesh.isPassable = true;
@@ -92,14 +100,21 @@ export const createMap = function (scene, mapDef, playerRadius) {
         }
     }
 
+    const centerX = mapWidth / 2;
+    const centerY = -mapHeight / 2;
+
     const planeGeo = new THREE.PlaneGeometry(mapWidth, mapHeight);
     const planeMat = new THREE.MeshPhongMaterial({
         color: 0x888888,
         side: THREE.DoubleSide,
     });
     const planeMesh = new THREE.Mesh(planeGeo, planeMat);
-    planeMesh.position.set(mapWidth/2, -mapHeight/2, -.5);
+    planeMesh.receiveShadow = true;
+    planeMesh.position.set(centerX, centerY, -.5);
     scene.add(planeMesh);
+
+    const lightHeight = centerX;
+    addPointLight(scene, 0xFFFFFF, 0.8, new THREE.Vector3(centerX, centerY, lightHeight));
 
     return map;
 };
@@ -144,6 +159,8 @@ export const createPlayer = function (scene, position, playerRadius) {
 
     player.position.copy(position);
     player.direction = new THREE.Vector3(-1, 0, 0);
+    player.castShadow = true;
+    player.receiveShadow = true;
 
     scene.add(player);
 
@@ -158,6 +175,8 @@ export const createRenderer = function () {
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setClearColor('black', 1.0);
     renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     const container = document.getElementById("container");
     container.insertBefore(renderer.domElement, container.firstChild);
@@ -173,7 +192,7 @@ export const createScene = function () {
     const scene = new THREE.Scene();
 
     // Add Ambient lighting
-    scene.add(new THREE.AmbientLight(0x888888));
+    scene.add(new THREE.AmbientLight(0xFFFFFF, 0.5));
 
     return scene;
 };
@@ -186,3 +205,23 @@ export const resetScene = (scene) => {
     scene.clear();
     scene.add(new THREE.AmbientLight(0x888888));
 }
+
+/**
+ * 
+ * @param {THREE.Scene} scene 
+ * @param {Number} color 
+ * @param {Number} intensity 
+ * @param {THREE.Vector3} position 
+ */
+export const addPointLight = (scene, color, intensity, position) => {
+    const light = new THREE.PointLight(color, intensity);
+    light.position.copy(position);
+
+    light.castShadow = true;
+    light.shadow.mapSize.width = 2048;
+    light.shadow.mapSize.height = 2048;
+    light.shadow.camera.near = 0.5; 
+    light.shadow.camera.far = 500;
+
+    scene.add(light);
+}; 
