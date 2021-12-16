@@ -3,7 +3,7 @@ import { MAP_DEFINITION } from './map.js';
 import { OrbitControls } from './OrbitControls.js';
 import {
     createMap, createPlayer, createRenderer,
-    createScene, resetScene
+    createScene, resetScene, resizeRendererToDisplaySize
 } from './sceneHelper.js';
 import {
     getAt, checkPassable,
@@ -300,6 +300,13 @@ const main = function () {
 
     animationLoop(function (delta) {
         update(delta);
+
+        if (resizeRendererToDisplaySize(renderer)) {
+            const canvas = renderer.domElement;
+            camera.aspect = canvas.clientWidth / canvas.clientHeight;
+            camera.updateProjectionMatrix();
+        }
+
         renderer.setViewport(0, 0, renderer.domElement.width, renderer.domElement.height);
         renderer.render(scene, camera);
     });

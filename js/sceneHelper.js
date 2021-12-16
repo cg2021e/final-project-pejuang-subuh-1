@@ -44,7 +44,7 @@ export const createMap = function (scene, mapDef, playerRadius) {
         map[y] = {};
         for (let j = 0; j < mapWidth; j++) {
             const x = j;
-            
+
             let mesh = null;
 
             if (map.playerSpawn.equals(new THREE.Vector3(x, y, 0))) {
@@ -161,9 +161,10 @@ export const createPlayer = function (scene, position, playerRadius) {
  * @returns {THREE.WebGLRenderer}
  */
 export const createRenderer = function () {
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const canvas = document.getElementById('canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+
     renderer.setClearColor('black', 1.0);
-    renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -267,4 +268,20 @@ const createEnergyPill = (position, radius) => {
     mesh.position.copy(position);
 
     return mesh;
+}
+
+/**
+ * 
+ * @param {THREE.WebGLRenderer} renderer 
+ * @returns {boolean}
+ */
+export const resizeRendererToDisplaySize = (renderer) => {
+    const canvas = renderer.domElement;
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    const needResize = canvas.width !== width || canvas.height !== height;
+    if (needResize) {
+        renderer.setSize(width, height, false);
+    }
+    return needResize;
 }
