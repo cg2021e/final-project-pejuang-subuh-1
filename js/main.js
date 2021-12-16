@@ -194,26 +194,33 @@ const main = function () {
 
         const startPosition = player.position.clone();
 
-        // Move based on current keys being pressed.
-        if (keys['W']) {
-            // W - move forward
-            // Because we are rotating the object above using lookAt, "forward" is to the left.
+        if (keys[" "]) {
             player.translateOnAxis(LEFT, currentSpeed * delta);
-        }
-        if (keys['S']) {
-            // W - move forward
-            // Because we are rotating the object above using lookAt, "forward" is to the left.
-            player.translateOnAxis(LEFT, -currentSpeed * delta);
-        }
-        if (keys['A']) {
-            player.direction.applyAxisAngle(UP, TURN_SPEED * delta);
+        } else {
+            // Move based on current keys being pressed.
+            if (keys['W']) {
+                // W - move forward
+                // Because we are rotating the object above using lookAt, "forward" is to the left.
+                player.translateOnAxis(LEFT, currentSpeed * delta);
+            }
 
-        }
-        if (keys['D']) {
-            player.direction.applyAxisAngle(UP, -TURN_SPEED * delta);
+            if (keys['S']) {
+                // W - move forward
+                // Because we are rotating the object above using lookAt, "forward" is to the left.
+                player.translateOnAxis(LEFT, -currentSpeed * delta);
+            }
+
+            if (keys['A']) {
+                player.direction.applyAxisAngle(UP, TURN_SPEED * delta);
+
+            }
+
+            if (keys['D']) {
+                player.direction.applyAxisAngle(UP, -TURN_SPEED * delta);
+            }
         }
 
-        isMoving = keys['W'] || keys['S'] || keys['A'] || keys['D'];
+        isMoving = keys['W'] || keys['S'] || keys['A'] || keys['D'] || keys[" "];
 
         playerBBox.setFromObject(player);
 
@@ -224,7 +231,7 @@ const main = function () {
         const playerRight = playerBBox.max.x - playerX;
         const playerTop = (-1) * (playerY - playerBBox.max.y);
         const playerBottom = (-1) * (playerBBox.min.y - playerY);
-        
+
         const leftSide = player.position.clone().addScaledVector(LEFT, playerLeft).round();
         const rightSide = player.position.clone().addScaledVector(RIGHT, playerRight).round();
         const topSide = player.position.clone().addScaledVector(TOP, playerTop).round();
@@ -271,7 +278,7 @@ const main = function () {
             const key = map.difficulty + map.mapIndex;
             let best = storage.getItem(key);
 
-            if(!best || dist < best) {
+            if (!best || dist < best) {
                 storage.setItem(key, dist);
                 best = dist;
             }
