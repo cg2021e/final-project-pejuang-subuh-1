@@ -28,7 +28,7 @@ const PLAYER_MAX_ENERGY = {
     hard: 540,
 };
 const ENERGY_PER_SECOND = 1;
-const ENERGY_PILL_VALUE = 150;
+const ENERGY_PILL_VALUE = 0.2;
 
 const animationLoop = function (callback) {
     let previousFrameTime = window.performance.now();
@@ -290,7 +290,7 @@ const main = function () {
             const mesh = getAt(map, player.position);
             mesh.isEnergy = false;
             scene.remove(mesh);
-            currentEnergy = Math.min(currentEnergy + ENERGY_PILL_VALUE, PLAYER_MAX_ENERGY[map.difficulty]);
+            currentEnergy = Math.min(currentEnergy + ENERGY_PILL_VALUE * PLAYER_MAX_ENERGY[map.difficulty], PLAYER_MAX_ENERGY[map.difficulty]);
             energyPickUpSFX.play();
         }
 
@@ -304,10 +304,16 @@ const main = function () {
         player.up.copy(player.direction).applyAxisAngle(UP, -Math.PI / 2);
         player.lookAt(_lookAt.copy(player.position).add(UP));
 
-        currentEnergy -= delta * ENERGY_PER_SECOND;
+        if (keys[" "]) {
+            currentEnergy -= delta * ENERGY_PER_SECOND * 5;
+            currentSpeed = Math.max(MIN_MOVE_SPEED, currentEnergy / PLAYER_MAX_ENERGY[map.difficulty] * MAX_MOVE_SPEED * 2);
+        } else {
+            currentEnergy -= delta * ENERGY_PER_SECOND;
+            currentSpeed = Math.max(MIN_MOVE_SPEED, currentEnergy / PLAYER_MAX_ENERGY[map.difficulty] * MAX_MOVE_SPEED);
+        }
+
         const energyRatio = currentEnergy / PLAYER_MAX_ENERGY[map.difficulty];
         setWidth("energy-bar", `${energyRatio * 100}%`);
-        currentSpeed = Math.max(MIN_MOVE_SPEED, currentEnergy / PLAYER_MAX_ENERGY[map.difficulty] * MAX_MOVE_SPEED);
 
         movePlayer(delta);
     }
