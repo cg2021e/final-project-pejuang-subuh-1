@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -101,3 +102,107 @@
         <script src="js/main.js" type="module"></script>
     </body>
 </html>
+=======
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Just A Maze</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+
+    <body>
+        <div id="container">
+            <canvas id="canvas"></canvas>
+            <div id="overlay-screen">
+                <div class="overlay" id="loading">
+                    <h1 style="color: black !important">Loading...</h1>
+                </div>
+
+                <div class="overlay" id="title">
+                    <h1>Just A Maze</h1>
+                    <div class="buttons">
+                        <button class="menu-button" id="play">Play</button>
+                        <button class="menu-button" id="how-to">How to Play</button>
+                    </div>
+                </div>
+
+                <div class="overlay" id="choose-difficulty">
+                    <h1>Choose Difficulty</h1>
+                    <div class="buttons">
+                        <button class="menu-button" id="easy">Easy</button>
+                        <button class="menu-button" id="medium">Medium</button>
+                        <button class="menu-button" id="hard">Hard</button>
+                    </div>
+                    <button class="menu-button" id="back-from-dif">Back</button>
+                </div>
+
+                <div class="overlay" id="how-to-play">
+                    <h1 style="font-size: 7vw;">How to Play</h1>
+                    <h3>Go to the goal (gold ball) before your energy runs out</h3>
+                    <h3>Use <kbd>W</kbd> or <kbd>S</kbd> to move the player forward or backward</h3>
+                    <h3>
+                        Use <kbd>S</kbd> or <kbd>D</kbd> to rotate the player to the left or right
+                    </h3>
+                    <h3>
+                        Hold <kbd>Space</kbd> to move faster, but your energy will also drain faster
+                    </h3>
+                    <h3>When not moving, drag the screen to move the camera</h3>
+                    <h3>Blue ball will let you look at the maze from above for few seconds</h3>
+                    <h3>Red ball will add your energy</h3>
+                    <button class="menu-button" id="back-from-htp">Back</button>
+                </div>
+
+                <div class="overlay" id="gameover-win">
+                    <h1>You Did It!!!</h1>
+                    <h3 id="distance-gameover">You walked for 0 m</h3>
+                    <h3 id="best-distance-gameover">Your shortest distance for this level is 0 m</h3>
+                    <div class="buttons">
+                        <button class="restart-button" id="restart-win">Restart</button>
+                        <button class="restart-button" id="menu-win">Menu</button>
+                    </div>
+                </div>
+
+                <div class="overlay" id="gameover-lose">
+                    <h1>You Failed :(</h1>
+                    <div class="buttons">
+                        <button class="restart-button" id="restart-lose">Restart</button>
+                        <button class="restart-button" id="menu-lose">Menu</button>
+                    </div>
+                </div>
+
+                <div class="overlay" id="timer">
+                    <h2 id="timer-text">5</h2>
+                </div>
+
+                <div class="overlay" id="game">
+                    <div id="top-game">
+                        <div id="energy">
+                            <h2>Energy</h2>
+                            <div id="energy-bar-bg">
+                                <div id="energy-bar"></div>
+                            </div>
+                        </div>
+                        <h2 id="distance">Distance: 0 m</h2>
+                    </div>
+                    <div id="bottom-game">
+                        <h2>Press Esc to Pause</h2>
+                    </div>
+                </div>
+
+                <div class="overlay" id="paused">
+                    <h1>Paused</h1>
+                    <div class="buttons">
+                        <button class="menu-button" id="resume-pause">Resume</button>
+                        <button class="menu-button" id="restart-pause">Restart</button>
+                        <button class="menu-button" id="back-pause">Menu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="js/main.js" type="module"></script>
+    </body>
+</html>
+>>>>>>> cab9fb2fb282ad275f3e026e7b0e52822dec6e7a
