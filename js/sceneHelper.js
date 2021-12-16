@@ -40,12 +40,11 @@ export const createMap = function (scene, mapDef, playerRadius) {
     };
 
     for (let i = 0; i < mapHeight; i++) {
-        let y = -i;
+        const y = -i;
         map[y] = {};
         for (let j = 0; j < mapWidth; j++) {
-            let x = j;
-            let mapNow = mapString[i][j];
-
+            const x = j;
+            
             let mesh = null;
 
             if (map.playerSpawn.equals(new THREE.Vector3(x, y, 0))) {
@@ -53,44 +52,34 @@ export const createMap = function (scene, mapDef, playerRadius) {
                     'isPassable': true
                 };
             } else if (map.goal.equals(new THREE.Vector3(x, y, 0))) {
-                const geometry = new THREE.SphereGeometry(playerRadius / 2);
-                const material = new THREE.MeshPhongMaterial({ color: 0xFFD700 });
-                mesh = new THREE.Mesh(geometry, material);
-                mesh.castShadow = true;
-                mesh.receiveShadow = true;
-
-                mesh.position.copy(map.goal);
+                mesh = createGoal(new THREE.Vector3(x, y, 0), playerRadius / 2);
                 mesh.isPassable = true;
             }
 
-            if (mapNow == '#') {
-                mesh = createWall(new THREE.Vector3(x, y, 0))
-            } else if (mapNow == '+') {
-                const geometry = new THREE.SphereGeometry(playerRadius / 4);
-                const material = new THREE.MeshPhongMaterial({ color: 0x0000FF });
-                mesh = new THREE.Mesh(geometry, material);
-                mesh.castShadow = true;
-                mesh.receiveShadow = true;
+            const mapNow = mapString[i][j];
 
-                mesh.position.copy(new THREE.Vector3(x, y, 0));
-                mesh.isPassable = true;
-                mesh.isPowerUp = true;
-            }
-            else if (mapNow == '$') {
-                const geometry = new THREE.SphereGeometry(playerRadius / 4);
-                const material = new THREE.MeshPhongMaterial({ color: 0xFF0000 });
-                mesh = new THREE.Mesh(geometry, material);
-                mesh.castShadow = true;
-                mesh.receiveShadow = true;
+            switch (mapNow) {
+                case '#':
+                    mesh = createWall(new THREE.Vector3(x, y, 0))
+                    break;
 
-                mesh.position.copy(new THREE.Vector3(x, y, 0));
-                mesh.isPassable = true;
-                mesh.isEnergy = true;
-            }
-            else {
-                map[y][x] = {
-                    'isPassable': true
-                };
+                case '+':
+                    mesh = createPowerUp(new THREE.Vector3(x, y, 0), playerRadius / 4);
+                    mesh.isPassable = true;
+                    mesh.isPowerUp = true;
+                    break;
+
+                case '$':
+                    mesh = createEnergyPill(new THREE.Vector3(x, y, 0), playerRadius / 4);
+                    mesh.isPassable = true;
+                    mesh.isEnergy = true;
+                    break;
+
+                default:
+                    map[y][x] = {
+                        'isPassable': true
+                    };
+                    break;
             }
 
             if (mesh != null) {
@@ -220,8 +209,62 @@ export const addPointLight = (scene, color, intensity, position) => {
     light.castShadow = true;
     light.shadow.mapSize.width = 2048;
     light.shadow.mapSize.height = 2048;
-    light.shadow.camera.near = 0.5; 
+    light.shadow.camera.near = 0.5;
     light.shadow.camera.far = 500;
 
     scene.add(light);
-}; 
+};
+
+/**
+ * 
+ * @param {THREE.Vector3} position 
+ * @param {Number} radius 
+ * @returns {THREE.Mesh}
+ */
+const createGoal = (position, radius) => {
+    const geometry = new THREE.SphereGeometry(radius);
+    const material = new THREE.MeshPhongMaterial({ color: 0xFFD700 });
+    const mesh = new THREE.Mesh(geometry, material);
+
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    mesh.position.copy(position);
+
+    return mesh;
+}
+
+/**
+ * 
+ * @param {THREE.Vector3} position 
+ * @param {Number} radius 
+ * @returns {THREE.Mesh}
+ */
+const createPowerUp = (position, radius) => {
+    const geometry = new THREE.SphereGeometry(radius);
+    const material = new THREE.MeshPhongMaterial({ color: 0x0000FF });
+    const mesh = new THREE.Mesh(geometry, material);
+
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    mesh.position.copy(position);
+
+    return mesh;
+}
+
+/**
+ * 
+ * @param {THREE.Vector3} position 
+ * @param {Number} radius 
+ * @returns {THREE.Mesh}
+ */
+const createEnergyPill = (position, radius) => {
+    const geometry = new THREE.SphereGeometry(radius);
+    const material = new THREE.MeshPhongMaterial({ color: 0xFF0000 });
+    const mesh = new THREE.Mesh(geometry, material);
+
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    mesh.position.copy(position);
+
+    return mesh;
+}
