@@ -91,6 +91,16 @@ export const createMap = function (scene, mapDef, playerRadius) {
             }
         }
     }
+
+    const planeGeo = new THREE.PlaneGeometry(mapWidth, mapHeight);
+    const planeMat = new THREE.MeshPhongMaterial({
+        color: 0x888888,
+        side: THREE.DoubleSide,
+    });
+    const planeMesh = new THREE.Mesh(planeGeo, planeMat);
+    planeMesh.position.set(mapWidth/2, -mapHeight/2, -.5);
+    scene.add(planeMesh);
+
     return map;
 };
 
@@ -134,7 +144,7 @@ export const createPlayer = function (scene, position, playerRadius) {
 
     player.position.copy(position);
     player.direction = new THREE.Vector3(-1, 0, 0);
-    
+
     scene.add(player);
 
     return player;

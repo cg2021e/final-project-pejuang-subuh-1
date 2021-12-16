@@ -203,7 +203,7 @@ const main = function () {
         }
 
         if (checkGoal(map, player.position, PLAYER_RADIUS)) {
-            inGame = false;;
+            inGame = false;
             showOneFromParent("gameover-win", "overlay-screen");
             setText("distance-gameover", `You walked for ${Math.round(player.distanceMoved)} meters.`);
             resetScene(scene);
@@ -220,7 +220,7 @@ const main = function () {
         }
 
         if (currentEnergy <= 0) {
-            inGame = false;;
+            inGame = false;
             showOneFromParent("gameover-lose", "overlay-screen");
             resetScene(scene);
             failSFX.play();
