@@ -44,7 +44,9 @@ h3 {
 #loading,
 #title,
 #gameover-win,
-#gameover-lose {
+#gameover-lose,
+#how-to-play,
+#choose-difficulty {
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -72,7 +74,7 @@ h3 {
     display: flex;
 }
 
-.difficulty-button {
+.menu-button {
     margin: 10px;
     padding: 10px;
     font-size: medium;
@@ -109,11 +111,6 @@ kbd {
     padding: 2px;
     border: 1px solid white;
     color: white;
-}
-
-#how-to-play {
-    margin-top: 20px;
-    text-align: center;
 }
 
 #canvas {

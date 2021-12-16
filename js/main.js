@@ -100,6 +100,26 @@ const main = function () {
 
     showOneFromParent("title", "overlay-screen");
 
+    addClick("play", () => {
+        showOneFromParent("choose-difficulty", "overlay-screen");
+        uiSFX.play();
+    });
+
+    addClick("how-to", () => {
+        showOneFromParent("how-to-play", "overlay-screen");
+        uiSFX.play();
+    });
+
+    addClick("back-from-htp", () => {
+        showOneFromParent("title", "overlay-screen");
+        uiSFX.play();
+    });
+
+    addClick("back-from-dif", () => {
+        showOneFromParent("title", "overlay-screen");
+        uiSFX.play();
+    });
+
     addClick("easy", () => {
         startGame("easy");
         uiSFX.play();
