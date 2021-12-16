@@ -32,8 +32,8 @@ const animationLoop = function (callback) {
     let animationSeconds = 0;
 
     const render = function () {
-        var now = window.performance.now();
-        var animationDelta = (now - previousFrameTime) / 1000;
+        const now = window.performance.now();
+        let animationDelta = (now - previousFrameTime) / 1000;
         previousFrameTime = now;
 
         animationDelta = Math.min(animationDelta, 1 / 30);
@@ -63,7 +63,6 @@ const main = function () {
     let cameraNeedUpdate = false;
     let currentEnergy = 0;
     let currentSpeed = 0;
-    let difficulty = null;
 
     const uiSFX = new Audio('sounds/ui.wav');
     const powerUpSFX = new Audio('sounds/powerup.wav');
@@ -183,18 +182,18 @@ const main = function () {
     const movePlayer = function (delta) {
         if (!inGame || isPoweredUp) return;
 
+        const startPosition = player.position.clone();
+
         // Move based on current keys being pressed.
         if (keys['W']) {
             // W - move forward
             // Because we are rotating the object above using lookAt, "forward" is to the left.
             player.translateOnAxis(LEFT, currentSpeed * delta);
-            player.distanceMoved += currentSpeed * delta;
         }
         if (keys['S']) {
             // W - move forward
             // Because we are rotating the object above using lookAt, "forward" is to the left.
             player.translateOnAxis(LEFT, -currentSpeed * delta);
-            player.distanceMoved += currentSpeed * delta;
         }
         if (keys['A']) {
             player.direction.applyAxisAngle(UP, TURN_SPEED * delta);
@@ -235,6 +234,8 @@ const main = function () {
         if (!checkPassable(map, bottomSide)) {
             player.position.y = bottomSide.y + 0.5 + playerBottom;
         }
+
+        player.distanceMoved += startPosition.distanceTo(player.position);
 
     }
 
