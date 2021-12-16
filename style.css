@@ -4,6 +4,7 @@ body {
     margin: 0;
     width: 100vw;
     height: 100vh;
+    overflow: hidden;
 }
 
 #container {
@@ -49,15 +50,41 @@ h3 {
 }
 
 #loading,
-#title,
 #gameover-win,
 #gameover-lose,
 #how-to-play,
-#choose-difficulty,
 #paused {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+}
+
+#how-to-play h3{
+    font-size: 2vw;
+    margin-bottom: 1vw;
+}
+
+#title,
+#choose-difficulty {
+    background-image: url(img/bg-menu.jpg);
+    margin-left: 80px;
+    margin-top: 80px;
+    flex-direction: column;
+    justify-content: left;
+    align-items: left;
+}
+
+#title h1 {
+    font-size: 8vw;
+    margin-bottom: 1vw;
+}
+
+#choose-difficulty h1 {
+    font-size: 5vw;
+}
+
+#back-from-dif {
+    max-width: 10vw;
 }
 
 #timer {
@@ -93,7 +120,7 @@ h3 {
 .menu-button {
     margin: 10px;
     padding: 10px;
-    font-size: medium;
+    font-size: 2vw;
 }
 
 .restart-button {
