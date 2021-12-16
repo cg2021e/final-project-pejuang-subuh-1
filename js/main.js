@@ -22,7 +22,11 @@ const MAX_MOVE_SPEED = 1;
 const MIN_MOVE_SPEED = 0.25;
 const TURN_SPEED = Math.PI / 2;
 const PLAYER_RADIUS = 0.25;
-const PLAYER_MAX_ENERGY = 600;
+const PLAYER_MAX_ENERGY = {
+    easy: 180,
+    medium: 360,
+    hard: 540,
+};
 const ENERGY_PER_SECOND = 1;
 const ENERGY_PILL_VALUE = 150;
 
@@ -32,8 +36,8 @@ const animationLoop = function (callback) {
     let animationSeconds = 0;
 
     const render = function () {
-        var now = window.performance.now();
-        var animationDelta = (now - previousFrameTime) / 1000;
+        const now = window.performance.now();
+        let animationDelta = (now - previousFrameTime) / 1000;
         previousFrameTime = now;
 
         animationDelta = Math.min(animationDelta, 1 / 30);
@@ -63,7 +67,6 @@ const main = function () {
     let cameraNeedUpdate = false;
     let currentEnergy = 0;
     let currentSpeed = 0;
-    let difficulty = null;
 
     const uiSFX = new Audio('sounds/ui.wav');
     const powerUpSFX = new Audio('sounds/powerup.wav');
@@ -107,6 +110,12 @@ const main = function () {
         uiSFX.play();
     };
 
+    const restartGame = () => {
+        resetScene(scene);
+        startGame(map.difficulty, map.mapIndex);
+        uiSFX.play();
+    };
+
     addClick("play", () => {
         showOneFromParent("choose-difficulty", "overlay-screen");
         uiSFX.play();
@@ -136,9 +145,13 @@ const main = function () {
         uiSFX.play();
     });
 
-    addClick("restart-win", backToMenu);
+    addClick("menu-win", backToMenu);
 
-    addClick("restart-lose", backToMenu);
+    addClick("restart-win", restartGame);
+
+    addClick("menu-lose", backToMenu);
+
+    addClick("restart-lose", restartGame);
 
     addClick("resume-pause", () => {
         inGame = true;
@@ -146,11 +159,7 @@ const main = function () {
         uiSFX.play();
     });
 
-    addClick("restart-pause", () => {
-        resetScene(scene);
-        startGame(map.difficulty, map.mapIndex);
-        uiSFX.play();
-    });
+    addClick("restart-pause", restartGame);
 
     addClick("back-pause", backToMenu);
 
@@ -165,7 +174,7 @@ const main = function () {
             inGame = true;
             isMoving = false;
             isPoweredUp = false;
-            currentEnergy = PLAYER_MAX_ENERGY;
+            currentEnergy = PLAYER_MAX_ENERGY[map.difficulty];
             currentSpeed = MAX_MOVE_SPEED;
 
             camera.targetPosition.copy(player.position).addScaledVector(UP, 1.5).addScaledVector(player.direction, -1.5);
@@ -183,18 +192,18 @@ const main = function () {
     const movePlayer = function (delta) {
         if (!inGame || isPoweredUp) return;
 
+        const startPosition = player.position.clone();
+
         // Move based on current keys being pressed.
         if (keys['W']) {
             // W - move forward
             // Because we are rotating the object above using lookAt, "forward" is to the left.
             player.translateOnAxis(LEFT, currentSpeed * delta);
-            player.distanceMoved += currentSpeed * delta;
         }
         if (keys['S']) {
             // W - move forward
             // Because we are rotating the object above using lookAt, "forward" is to the left.
             player.translateOnAxis(LEFT, -currentSpeed * delta);
-            player.distanceMoved += currentSpeed * delta;
         }
         if (keys['A']) {
             player.direction.applyAxisAngle(UP, TURN_SPEED * delta);
@@ -235,6 +244,8 @@ const main = function () {
         if (!checkPassable(map, bottomSide)) {
             player.position.y = bottomSide.y + 0.5 + playerBottom;
         }
+
+        player.distanceMoved += startPosition.distanceTo(player.position);
 
     }
 
@@ -279,7 +290,7 @@ const main = function () {
             const mesh = getAt(map, player.position);
             mesh.isEnergy = false;
             scene.remove(mesh);
-            currentEnergy = Math.min(currentEnergy + ENERGY_PILL_VALUE, PLAYER_MAX_ENERGY);
+            currentEnergy = Math.min(currentEnergy + ENERGY_PILL_VALUE, PLAYER_MAX_ENERGY[map.difficulty]);
             energyPickUpSFX.play();
         }
 
@@ -294,9 +305,9 @@ const main = function () {
         player.lookAt(_lookAt.copy(player.position).add(UP));
 
         currentEnergy -= delta * ENERGY_PER_SECOND;
-        const energyRatio = currentEnergy / PLAYER_MAX_ENERGY;
+        const energyRatio = currentEnergy / PLAYER_MAX_ENERGY[map.difficulty];
         setWidth("energy-bar", `${energyRatio * 100}%`);
-        currentSpeed = Math.max(MIN_MOVE_SPEED, currentEnergy / PLAYER_MAX_ENERGY * MAX_MOVE_SPEED);
+        currentSpeed = Math.max(MIN_MOVE_SPEED, currentEnergy / PLAYER_MAX_ENERGY[map.difficulty] * MAX_MOVE_SPEED);
 
         movePlayer(delta);
     }
