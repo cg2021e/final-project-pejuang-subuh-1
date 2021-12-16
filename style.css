@@ -146,9 +146,9 @@ h3 {
 }
 
 #energy-bar {
-    background: #ad5353;
-    background: -webkit-linear-gradient(to bottom, #531010, #ad5353);
-    background: linear-gradient(to bottom, #531010, #ad5353);
+    background: #ffb56f;
+    background: -webkit-linear-gradient(to bottom, #ffb56f, #FCD9B8);
+    background: linear-gradient(to bottom, #ffb56f, #FCD9B8);
     border-radius: 3px;
     height: 30px;
     width: 0;
