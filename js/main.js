@@ -154,6 +154,8 @@ const main = function () {
 
     addClick("back-pause", backToMenu);
 
+    const storage = window.localStorage;
+
     const startGame = (choosenDifficulty, mapIndex) => {
         map = createMap(scene, choosenDifficulty, PLAYER_RADIUS, mapIndex);
         createPlayer(scene, map.playerSpawn, (model) => {
@@ -256,8 +258,19 @@ const main = function () {
 
         if (checkGoal(map, player.position, PLAYER_RADIUS)) {
             inGame = false;
+            const dist = Math.round(player.distanceMoved);
+            const key = map.difficulty + map.mapIndex;
+            let best = storage.getItem(key);
+
+            if(!best || dist < best) {
+                storage.setItem(key, dist);
+                best = dist;
+            }
+
             showOneFromParent("gameover-win", "overlay-screen");
-            setText("distance-gameover", `You walked for ${Math.round(player.distanceMoved)} meters.`);
+            setText("distance-gameover", `You walked for ${dist} meters.`);
+            setText("best-distance-gameover", `Your shortest distance for this level is ${best} meters.`);
+
             goalSFX.play();
             return;
         }
