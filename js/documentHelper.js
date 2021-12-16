@@ -15,7 +15,7 @@ export const createKeys = function () {
     });
     document.body.addEventListener('blur', function (event) {
         // Make it so that all keys are unpressed when the browser loses focus.
-        for (var key in keys) {
+        for (let key in keys) {
             if (keys.hasOwnProperty(key))
                 keys[key] = false;
         }

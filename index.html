@@ -63,13 +63,27 @@
                 </div>
 
                 <div class="overlay" id="game">
-                    <div id="energy">
-                        <h2>Energy</h2>
-                        <div id="energy-bar-bg">
-                            <div id="energy-bar"></div>
+                    <div id="top-game">
+                        <div id="energy">
+                            <h2>Energy</h2>
+                            <div id="energy-bar-bg">
+                                <div id="energy-bar"></div>
+                            </div>
                         </div>
+                        <h2 id="distance">Distance: 0 m</h2>
                     </div>
-                    <h2 id="distance">Distance: 0 m</h2>
+                    <div id="bottom-game">
+                        <h2>Press P to Pause</h2>
+                    </div>
+                </div>
+
+                <div class="overlay" id="paused">
+                    <h1>Paused</h1>
+                    <div class="buttons">
+                        <button class="menu-button" id="resume-pause">Resume</button>
+                        <button class="menu-button" id="restart-pause">Restart</button>
+                        <button class="menu-button" id="back-pause">Back to Menu</button>
+                    </div>
                 </div>
             </div>
         </div>

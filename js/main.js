@@ -63,6 +63,7 @@ const main = function () {
     let cameraNeedUpdate = false;
     let currentEnergy = 0;
     let currentSpeed = 0;
+    let difficulty = null;
 
     const uiSFX = new Audio('sounds/ui.wav');
     const powerUpSFX = new Audio('sounds/powerup.wav');
@@ -100,6 +101,12 @@ const main = function () {
 
     showOneFromParent("title", "overlay-screen");
 
+    const backToMenu = () => {
+        resetScene(scene);
+        showOneFromParent("title", "overlay-screen");
+        uiSFX.play();
+    };
+
     addClick("play", () => {
         showOneFromParent("choose-difficulty", "overlay-screen");
         uiSFX.play();
@@ -110,15 +117,9 @@ const main = function () {
         uiSFX.play();
     });
 
-    addClick("back-from-htp", () => {
-        showOneFromParent("title", "overlay-screen");
-        uiSFX.play();
-    });
+    addClick("back-from-htp", backToMenu);
 
-    addClick("back-from-dif", () => {
-        showOneFromParent("title", "overlay-screen");
-        uiSFX.play();
-    });
+    addClick("back-from-dif", backToMenu);
 
     addClick("easy", () => {
         startGame("easy");
@@ -135,17 +136,26 @@ const main = function () {
         uiSFX.play();
     });
 
-    addClick("restart-win", () => {
-        showOneFromParent("title", "overlay-screen");
+    addClick("restart-win", backToMenu);
+
+    addClick("restart-lose", backToMenu);
+
+    addClick("resume-pause", () => {
+        inGame = true;
+        showOneFromParent("game", "overlay-screen");
         uiSFX.play();
     });
 
-    addClick("restart-lose", () => {
-        showOneFromParent("title", "overlay-screen");
+    addClick("restart-pause", () => {
+        resetScene(scene);
+        startGame(difficulty);
         uiSFX.play();
     });
 
-    const startGame = (difficulty) => {
+    addClick("back-pause", backToMenu);
+
+    const startGame = (choosenDifficulty) => {
+        difficulty = choosenDifficulty;
         map = createMap(scene, MAP_DEFINITION[difficulty], PLAYER_RADIUS);
         createPlayer(scene, map.playerSpawn, (model) => {
             console.log("player created");
@@ -218,6 +228,7 @@ const main = function () {
     }
 
     const update = function (delta) {
+        checkPause();
         updateCamera(delta);
         updatePlayer(delta);
     }
@@ -238,7 +249,6 @@ const main = function () {
             inGame = false;
             showOneFromParent("gameover-win", "overlay-screen");
             setText("distance-gameover", `You walked for ${Math.round(player.distanceMoved)} meters.`);
-            resetScene(scene);
             goalSFX.play();
             return;
         }
@@ -254,7 +264,6 @@ const main = function () {
         if (currentEnergy <= 0) {
             inGame = false;
             showOneFromParent("gameover-lose", "overlay-screen");
-            resetScene(scene);
             failSFX.play();
             return;
         }
@@ -290,6 +299,13 @@ const main = function () {
         controls.target.copy(player.position);
 
         controls.update();
+    }
+
+    const checkPause = () => {
+        if (keys['P']) {
+            showOneFromParent("paused", "overlay-screen");
+            inGame = false;
+        }
     }
 
     const powerUp = () => {
